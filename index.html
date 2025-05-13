@@ -401,10 +401,27 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 // Wykres wartości
                 const valuesChartOptions = {
                     chart: {
-                        type: 'line',
+                        type: 'area',
                         height: 400,
                         fontFamily: 'Poppins, sans-serif',
-                        toolbar: { show: true }
+                        zoom: {
+                            enabled: true,
+                            type: 'x',
+                            autoScaleYaxis: true
+                        },
+                        toolbar: {
+                            show: true,
+                            tools: {
+                                download: true,
+                                selection: true,
+                                zoom: true,
+                                zoomin: true,
+                                zoomout: true,
+                                pan: true,
+                                reset: true
+                            },
+                            autoSelected: 'zoom'
+                        }
                     },
                     series: [
                         { name: 'M3', data: valuesData.m3, color: '#9f7aea' },
@@ -418,14 +435,41 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     },
                     yaxis: {
                         title: { text: 'Wartość (mld PLN)' },
-                        labels: { formatter: val => val.toFixed(2) }
+                        labels: { formatter: val => val.toFixed(2) },
+                        forceNiceScale: true
                     },
-                    stroke: { curve: 'smooth', width: 2 },
+                    stroke: {
+                        curve: 'smooth',
+                        width: 2
+                    },
+                    fill: {
+                        opacity: 0.3,
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.7,
+                            opacityTo: 0.2
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    markers: {
+                        size: 0,
+                        hover: {
+                            size: 5
+                        }
+                    },
                     tooltip: {
                         x: { format: 'yyyy-MM-dd' },
-                        y: { formatter: val => val ? `${val.toFixed(2)} mld PLN` : 'Brak danych' }
+                        y: { formatter: val => val ? `${val.toFixed(2)} mld PLN` : 'Brak danych' },
+                        shared: true,
+                        intersect: false
                     },
-                    legend: { position: 'top' }
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'center'
+                    }
                 };
                 const valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
                 valuesChart.render();
@@ -434,53 +478,83 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 let currentPeriod = 'rr';
                 let currentUnit = 'mld';
 
-                // Inicjalizacja wykresu tylko raz
                 let changesChart = new ApexCharts(document.querySelector('#changes-chart'), {
                     chart: {
-                        type: 'line',
+                        type: 'area',
                         height: 400,
                         fontFamily: 'Poppins, sans-serif',
-                        toolbar: { show: true }
+                        zoom: {
+                            enabled: true,
+                            type: 'x',
+                            autoScaleYaxis: true
+                        },
+                        toolbar: {
+                            show: true,
+                            tools: {
+                                download: true,
+                                selection: true,
+                                zoom: true,
+                                zoomin: true,
+                                zoomout: true,
+                                pan: true,
+                                reset: true
+                            },
+                            autoSelected: 'zoom'
+                        }
                     },
-                    series: [], // Puste serie, zostaną zaktualizowane
+                    series: [],
                     xaxis: {
                         type: 'datetime',
                         categories: dates,
                         labels: { format: 'yyyy-MM' }
                     },
                     stroke: { curve: 'smooth', width: 2 },
+                    fill: {
+                        opacity: 0.2,
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.5,
+                            opacityTo: 0.1
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    markers: {
+                        size: 0,
+                        hover: {
+                            size: 5
+                        }
+                    },
                     legend: { position: 'top' }
                 });
                 changesChart.render();
 
-                // Funkcja do aktualizacji wykresu bez niszczenia go
                 const updateChangesChart = () => {
                     const changes = calculateChanges(currentPeriod, currentUnit);
-                    
-                    // Aktualizuj serie danych
                     changesChart.updateSeries([
                         { name: 'M3', data: changes.m3, color: '#9f7aea' },
                         { name: 'M2', data: changes.m2, color: '#4299e1' },
                         { name: 'M1', data: changes.m1, color: '#48bb78' }
                     ]);
-                    
-                    // Aktualizuj opcje wykresu
                     changesChart.updateOptions({
                         yaxis: {
                             title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
-                            labels: { formatter: val => val ? val.toFixed(2) : '' }
+                            labels: { formatter: val => val ? val.toFixed(2) : '' },
+                            forceNiceScale: true
                         },
                         tooltip: {
                             x: { format: 'yyyy-MM-dd' },
-                            y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' }
+                            y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' },
+                            shared: true,
+                            intersect: false
                         }
                     });
                 };
 
-                // Inicjalna aktualizacja wykresu
                 updateChangesChart();
 
-                // Obsługa przełączników bez niszczenia wykresu
                 document.getElementById('period-toggle').addEventListener('change', (e) => {
                     currentPeriod = e.target.checked ? 'rr' : 'mm';
                     updateChangesChart();
