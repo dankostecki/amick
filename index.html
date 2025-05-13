@@ -1,1 +1,247 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podaż Pieniądza w Polsce</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #1a3c5e;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .columns {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .column-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .column {
+            background: linear-gradient(135deg, #ffffff, #e8eff5);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border-top: 5px solid transparent;
+        }
+        .m3-column {
+            border-top-color: #9f7aea;
+        }
+        .m2-column {
+            border-top-color: #4299e1;
+        }
+        .m1-column {
+            border-top-color: #48bb78;
+        }
+        .column:hover {
+            transform: translateY(-5px);
+        }
+        .column h2 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 0 0 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+            display: inline-block;
+        }
+        .m3-header {
+            background: linear-gradient(135deg, #6b46c1, #9f7aea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .m2-header {
+            background: linear-gradient(135deg, #2b6cb0, #4299e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .m1-header {
+            background: linear-gradient(135deg, #2f855a, #48bb78);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2c5282;
+            margin: 10px 0;
+        }
+        .change {
+            font-size: 1.1rem;
+            margin: 5px 0;
+        }
+        .positive {
+            color: #28a745;
+        }
+        .negative {
+            color: #dc3545;
+        }
+        .text-box {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .text-content {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        @media (max-width: 768px) {
+            .columns {
+                flex-direction: column;
+                align-items: center;
+            }
+            .column-container {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Podaż Pieniądza w Polsce</h1>
+        <div class="columns">
+            <div class="column-container">
+                <div class="column m3-column">
+                    <h2 class="m3-header">M3</h2>
+                    <div class="value" id="m3-value">Ładowanie...</div>
+                    <div class="change" id="m3-mm">Ładowanie...</div>
+                    <div class="change" id="m3-rr">Ładowanie...</div>
+                </div>
+                <div class="text-box">
+                    <div class="text-content" id="m3-text">Ładowanie danych...</div>
+                </div>
+            </div>
+            <div class="column-container">
+                <div class="column m2-column">
+                    <h2 class="m2-header">M2</h2>
+                    <div class="value" id="m2-value">Ładowanie...</div>
+                    <div class="change" id="m2-mm">Ładowanie...</div>
+                    <div class="change" id="m2-rr">Ładowanie...</div>
+                </div>
+                <div class="text-box">
+                    <div class="text-content" id="m2-text">Ładowanie danych...</div>
+                </div>
+            </div>
+            <div class="column-container">
+                <div class="column m1-column">
+                    <h2 class="m1-header">M1</h2>
+                    <div class="value" id="m1-value">Ładowanie...</div>
+                    <div class="change" id="m1-mm">Ładowanie...</div>
+                    <div class="change" id="m1-rr">Ładowanie...</div>
+                </div>
+                <div class="text-box">
+                    <div class="text-content" id="m1-text">Ładowanie danych...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function loadData() {
+            try {
+                const response = await fetch('am_data.json');
+                if (!response.ok) throw new Error('Nie udało się załadować pliku JSON');
+                const jsonData = await response.json();
 
+                const columns = {
+                    m3: jsonData.columns.find(col => col.column_id === 23),
+                    m2: jsonData.columns.find(col => col.column_id === 19),
+                    m1: jsonData.columns.find(col => col.column_id === 11)
+                };
+
+                for (const [key, column] of Object.entries(columns)) {
+                    if (!column) {
+                        document.getElementById(`${key}-value`).textContent = 'Brak danych';
+                        document.getElementById(`${key}-mm`).textContent = 'Brak danych';
+                        document.getElementById(`${key}-rr`).textContent = 'Brak danych';
+                        document.getElementById(`${key}-text`).textContent = `Brak danych dla ${key.toUpperCase()} w pliku am_data.json (column_id: ${key === 'm3' ? 23 : key === 'm2' ? 19 : 11}).`;
+                        continue;
+                    }
+
+                    const data = column.data;
+                    const latest = data[data.length - 1]; // Najnowszy wpis
+                    const latestValue = latest.value / 1000; // Przelicz na mld PLN
+                    const latestDate = new Date(latest.date);
+
+                    // Znajdź wartość z poprzedniego miesiąca
+                    const prevMonthDate = new Date(latestDate);
+                    prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+                    const prevMonthStr = prevMonthDate.toISOString().slice(0, 10);
+                    const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthStr.slice(0, 7));
+                    const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
+
+                    // Znajdź wartość z poprzedniego roku
+                    const prevYearDate = new Date(latestDate);
+                    prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
+                    const prevYearStr = prevYearDate.toISOString().slice(0, 10);
+                    const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearStr.slice(0, 7));
+                    const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
+
+                    // Oblicz zmiany
+                    let mmChange = null, mmPercent = null, rrChange = null, rrPercent = null;
+                    if (prevMonthValue !== null) {
+                        mmChange = latestValue - prevMonthValue;
+                        mmPercent = (mmChange / prevMonthValue) * 100;
+                    }
+                    if (prevYearValue !== null) {
+                        rrChange = latestValue - prevYearValue;
+                        rrPercent = (rrChange / prevYearValue) * 100;
+                    }
+
+                    // Formatuj wartości
+                    document.getElementById(`${key}-value`).textContent = `${latestValue.toFixed(2)} mld PLN`;
+                    document.getElementById(`${key}-mm`).textContent = prevMonthValue !== null
+                        ? `${mmChange >= 0 ? '+' : ''}${mmChange.toFixed(2)} mld m/m (${mmPercent.toFixed(2)}%)`
+                        : 'Brak danych m/m';
+                    document.getElementById(`${key}-mm`).className = `change ${mmChange >= 0 ? 'positive' : 'negative'}`;
+                    document.getElementById(`${key}-rr`).textContent = prevYearValue !== null
+                        ? `${rrChange >= 0 ? '+' : ''}${rrChange.toFixed(2)} mld r/r (${rrPercent.toFixed(2)}%)`
+                        : 'Brak danych r/r';
+                    document.getElementById(`${key}-rr`).className = `change ${rrChange >= 0 ? 'positive' : 'negative'}`;
+                    document.getElementById(`${key}-text`).textContent = `Dane dla ${key.toUpperCase()} pobrano z pliku am_data.json (stan na ${latest.date}).`;
+                }
+            } catch (error) {
+                console.error('Błąd:', error);
+                for (const key of ['m3', 'm2', 'm1']) {
+                    document.getElementById(`${key}-value`).textContent = 'Błąd ładowania';
+                    document.getElementById(`${key}-mm`).textContent = 'Błąd';
+                    document.getElementById(`${key}-rr`).textContent = 'Błąd';
+                    document.getElementById(`${key}-text`).textContent = `Wystąpił błąd podczas ładowania danych dla ${key.toUpperCase()}: ${error.message}`;
+                }
+            }
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
