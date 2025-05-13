@@ -243,7 +243,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         ? `${rrChange >= 0 ? '+' : ''}${rrChange.toFixed(2)} mld r/r (${rrPercent.toFixed(2)}%)`
                         : 'Brak danych r/r';
                     document.getElementById(`${key}-rr`).className = `change ${rrChange >= 0 ? 'positive' : 'negative'}`;
-                    document.getElementById(`${key}-date`).textContent = `Stan na ${latest.date}`;
+                    document.getElementById(`${key}-date`).textContent = `Stan na ${latest.date}, źródło: NBP`;
                     document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                 }
             } catch (error) {
