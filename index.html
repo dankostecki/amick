@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Podaż Pieniądza w Polsce</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -18,13 +19,19 @@
             margin: 0 auto;
             padding: 40px 20px;
         }
-        h1 {
+        h1, h2 {
             text-align: center;
-            font-size: 2.5rem;
             color: #1a3c5e;
-            margin-bottom: 50px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+        h2 {
+            font-size: 2rem;
+            margin: 40px 0 30px;
         }
         .columns {
             display: flex;
@@ -114,20 +121,93 @@
             text-align: left;
         }
         .text-content {
-            font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             color: #666;
             line-height: 1.6;
             white-space: pre-wrap;
         }
+        .charts-section {
+            margin-top: 60px;
+        }
+        .chart-columns {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .chart-column {
+            flex: 1;
+            min-width: 300px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+        .toggles {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-label {
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 20px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #4299e1;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
         @media (max-width: 768px) {
-            .columns {
+            .columns, .chart-columns {
                 flex-direction: column;
                 align-items: center;
             }
-            .column-container {
+            .column-container, .chart-column {
                 width: 100%;
                 max-width: 400px;
+            }
+            .toggles {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
@@ -179,6 +259,35 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 </div>
             </div>
         </div>
+        <section class="charts-section">
+            <h2>Wykres skumulowany</h2>
+            <div class="chart-columns">
+                <div class="chart-column">
+                    <div id="values-chart"></div>
+                </div>
+                <div class="chart-column">
+                    <div class="toggles">
+                        <div class="toggle-container">
+                            <span class="toggle-label">r/r</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="period-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">m/m</span>
+                        </div>
+                        <div class="toggle-container">
+                            <span class="toggle-label">mld PLN</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="unit-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">%</span>
+                        </div>
+                    </div>
+                    <div id="changes-chart"></div>
+                </div>
+            </div>
+        </section>
     </div>
     <script>
         async function loadData() {
@@ -193,6 +302,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     m1: jsonData.columns.find(col => col.column_id === 11)
                 };
 
+                // Przetwarzanie danych dla ramek
                 for (const [key, column] of Object.entries(columns)) {
                     if (!column) {
                         document.getElementById(`${key}-value`).textContent = 'Brak danych';
@@ -204,25 +314,22 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     }
 
                     const data = column.data;
-                    const latest = data[data.length - 1]; // Najnowszy wpis
-                    const latestValue = latest.value / 1000; // Przelicz na mld PLN
+                    const latest = data[data.length - 1];
+                    const latestValue = latest.value / 1000;
                     const latestDate = new Date(latest.date);
 
-                    // Znajdź wartość z poprzedniego miesiąca
                     const prevMonthDate = new Date(latestDate);
                     prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
                     const prevMonthStr = prevMonthDate.toISOString().slice(0, 10);
                     const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthStr.slice(0, 7));
                     const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
 
-                    // Znajdź wartość z poprzedniego roku
                     const prevYearDate = new Date(latestDate);
                     prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
                     const prevYearStr = prevYearDate.toISOString().slice(0, 10);
                     const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearStr.slice(0, 7));
                     const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
 
-                    // Oblicz zmiany
                     let mmChange = null, mmPercent = null, rrChange = null, rrPercent = null;
                     if (prevMonthValue !== null) {
                         mmChange = latestValue - prevMonthValue;
@@ -233,7 +340,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         rrPercent = (rrChange / prevYearValue) * 100;
                     }
 
-                    // Formatuj wartości
                     document.getElementById(`${key}-value`).textContent = `${latestValue.toFixed(2)} mld PLN`;
                     document.getElementById(`${key}-mm`).textContent = prevMonthValue !== null
                         ? `${mmChange >= 0 ? '+' : ''}${mmChange.toFixed(2)} mld m/m (${mmPercent.toFixed(2)}%)`
@@ -246,6 +352,144 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     document.getElementById(`${key}-date`).textContent = `Stan na ${latest.date}, źródło: NBP`;
                     document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                 }
+
+                // Przetwarzanie danych dla wykresów
+                const dates = columns.m3 ? columns.m3.data.map(d => d.date) : [];
+                const valuesData = {
+                    m3: columns.m3 ? columns.m3.data.map(d => d.value / 1000) : [],
+                    m2: columns.m2 ? columns.m2.data.map(d => d.value / 1000) : [],
+                    m1: columns.m1 ? columns.m1.data.map(d => d.value / 1000) : []
+                };
+
+                // Oblicz zmiany dla wykresu zmian
+                const calculateChanges = (period, unit) => {
+                    const changes = { m3: [], m2: [], m1: [] };
+                    for (const key of ['m3', 'm2', 'm1']) {
+                        if (!columns[key]) {
+                            changes[key] = new Array(dates.length).fill(null);
+                            continue;
+                        }
+                        const data = columns[key].data;
+                        for (let i = 0; i < data.length; i++) {
+                            const currentDate = new Date(data[i].date);
+                            const currentValue = data[i].value / 1000;
+                            let prevValue = null;
+                            if (period === 'rr') {
+                                const prevYearDate = new Date(currentDate);
+                                prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
+                                const prevYearStr = prevYearDate.toISOString().slice(0, 10);
+                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevYearStr.slice(0, 7));
+                                prevValue = prevEntry ? prevEntry.value / 1000 : null;
+                            } else {
+                                const prevMonthDate = new Date(currentDate);
+                                prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+                                const prevMonthStr = prevMonthDate.toISOString().slice(0, 10);
+                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthStr.slice(0, 7));
+                                prevValue = prevEntry ? prevEntry.value / 1000 : null;
+                            }
+                            if (prevValue !== null) {
+                                const change = currentValue - prevValue;
+                                changes[key][i] = unit === 'percent' ? (change / prevValue * 100) : change;
+                            } else {
+                                changes[key][i] = null;
+                            }
+                        }
+                    }
+                    return changes;
+                };
+
+                // Wykres wartości
+                const valuesChartOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 400,
+                        fontFamily: 'Poppins, sans-serif',
+                        toolbar: { show: true }
+                    },
+                    series: [
+                        { name: 'M3', data: valuesData.m3, color: '#9f7aea' },
+                        { name: 'M2', data: valuesData.m2, color: '#4299e1' },
+                        { name: 'M1', data: valuesData.m1, color: '#48bb78' }
+                    ],
+                    xaxis: {
+                        type: 'datetime',
+                        categories: dates,
+                        labels: { format: 'yyyy-MM' }
+                    },
+                    yaxis: {
+                        title: { text: 'Wartość (mld PLN)' },
+                        labels: { formatter: val => val.toFixed(2) }
+                    },
+                    stroke: { curve: 'smooth', width: 2 },
+                    tooltip: {
+                        x: { format: 'yyyy-MM-dd' },
+                        y: { formatter: val => val ? `${val.toFixed(2)} mld PLN` : 'Brak danych' }
+                    },
+                    legend: { position: 'top' }
+                };
+                const valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
+                valuesChart.render();
+
+                // Wykres zmian
+                let currentPeriod = 'rr';
+                let currentUnit = 'mld';
+
+                // Inicjalizacja wykresu tylko raz
+                let changesChart = new ApexCharts(document.querySelector('#changes-chart'), {
+                    chart: {
+                        type: 'line',
+                        height: 400,
+                        fontFamily: 'Poppins, sans-serif',
+                        toolbar: { show: true }
+                    },
+                    series: [], // Puste serie, zostaną zaktualizowane
+                    xaxis: {
+                        type: 'datetime',
+                        categories: dates,
+                        labels: { format: 'yyyy-MM' }
+                    },
+                    stroke: { curve: 'smooth', width: 2 },
+                    legend: { position: 'top' }
+                });
+                changesChart.render();
+
+                // Funkcja do aktualizacji wykresu bez niszczenia go
+                const updateChangesChart = () => {
+                    const changes = calculateChanges(currentPeriod, currentUnit);
+                    
+                    // Aktualizuj serie danych
+                    changesChart.updateSeries([
+                        { name: 'M3', data: changes.m3, color: '#9f7aea' },
+                        { name: 'M2', data: changes.m2, color: '#4299e1' },
+                        { name: 'M1', data: changes.m1, color: '#48bb78' }
+                    ]);
+                    
+                    // Aktualizuj opcje wykresu
+                    changesChart.updateOptions({
+                        yaxis: {
+                            title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
+                            labels: { formatter: val => val ? val.toFixed(2) : '' }
+                        },
+                        tooltip: {
+                            x: { format: 'yyyy-MM-dd' },
+                            y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' }
+                        }
+                    });
+                };
+
+                // Inicjalna aktualizacja wykresu
+                updateChangesChart();
+
+                // Obsługa przełączników bez niszczenia wykresu
+                document.getElementById('period-toggle').addEventListener('change', (e) => {
+                    currentPeriod = e.target.checked ? 'rr' : 'mm';
+                    updateChangesChart();
+                });
+
+                document.getElementById('unit-toggle').addEventListener('change', (e) => {
+                    currentUnit = e.target.checked ? 'mld' : 'percent';
+                    updateChangesChart();
+                });
             } catch (error) {
                 console.error('Błąd:', error);
                 for (const key of ['m3', 'm2', 'm1']) {
@@ -255,6 +499,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     document.getElementById(`${key}-date`).textContent = 'Błąd';
                     document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                 }
+                document.querySelector('#values-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
+                document.querySelector('#changes-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
             }
         }
 
