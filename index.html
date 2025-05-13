@@ -100,6 +100,11 @@
         .negative {
             color: #dc3545;
         }
+        .date-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 10px;
+        }
         .text-box {
             background: #ffffff;
             border-radius: 10px;
@@ -137,9 +142,12 @@
                     <div class="value" id="m3-value">Ładowanie...</div>
                     <div class="change" id="m3-mm">Ładowanie...</div>
                     <div class="change" id="m3-rr">Ładowanie...</div>
+                    <div class="date-info" id="m3-date">Ładowanie...</div>
                 </div>
                 <div class="text-box">
-                    <div class="text-content" id="m3-text">Ładowanie danych...</div>
+                    <div class="text-content" id="m3-text">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </div>
                 </div>
             </div>
             <div class="column-container">
@@ -148,9 +156,12 @@
                     <div class="value" id="m2-value">Ładowanie...</div>
                     <div class="change" id="m2-mm">Ładowanie...</div>
                     <div class="change" id="m2-rr">Ładowanie...</div>
+                    <div class="date-info" id="m2-date">Ładowanie...</div>
                 </div>
                 <div class="text-box">
-                    <div class="text-content" id="m2-text">Ładowanie danych...</div>
+                    <div class="text-content" id="m2-text">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </div>
                 </div>
             </div>
             <div class="column-container">
@@ -159,9 +170,12 @@
                     <div class="value" id="m1-value">Ładowanie...</div>
                     <div class="change" id="m1-mm">Ładowanie...</div>
                     <div class="change" id="m1-rr">Ładowanie...</div>
+                    <div class="date-info" id="m1-date">Ładowanie...</div>
                 </div>
                 <div class="text-box">
-                    <div class="text-content" id="m1-text">Ładowanie danych...</div>
+                    <div class="text-content" id="m1-text">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,7 +198,8 @@
                         document.getElementById(`${key}-value`).textContent = 'Brak danych';
                         document.getElementById(`${key}-mm`).textContent = 'Brak danych';
                         document.getElementById(`${key}-rr`).textContent = 'Brak danych';
-                        document.getElementById(`${key}-text`).textContent = `Brak danych dla ${key.toUpperCase()} w pliku am_data.json (column_id: ${key === 'm3' ? 23 : key === 'm2' ? 19 : 11}).`;
+                        document.getElementById(`${key}-date`).textContent = 'Brak danych';
+                        document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                         continue;
                     }
 
@@ -228,7 +243,8 @@
                         ? `${rrChange >= 0 ? '+' : ''}${rrChange.toFixed(2)} mld r/r (${rrPercent.toFixed(2)}%)`
                         : 'Brak danych r/r';
                     document.getElementById(`${key}-rr`).className = `change ${rrChange >= 0 ? 'positive' : 'negative'}`;
-                    document.getElementById(`${key}-text`).textContent = `Dane dla ${key.toUpperCase()} pobrano z pliku am_data.json (stan na ${latest.date}).`;
+                    document.getElementById(`${key}-date`).textContent = `Stan na ${latest.date}`;
+                    document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                 }
             } catch (error) {
                 console.error('Błąd:', error);
@@ -236,7 +252,8 @@
                     document.getElementById(`${key}-value`).textContent = 'Błąd ładowania';
                     document.getElementById(`${key}-mm`).textContent = 'Błąd';
                     document.getElementById(`${key}-rr`).textContent = 'Błąd';
-                    document.getElementById(`${key}-text`).textContent = `Wystąpił błąd podczas ładowania danych dla ${key.toUpperCase()}: ${error.message}`;
+                    document.getElementById(`${key}-date`).textContent = 'Błąd';
+                    document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                 }
             }
         }
