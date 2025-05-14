@@ -255,26 +255,6 @@
             padding: 20px;
             overflow-x: auto;
         }
-        .table-controls {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .table-controls select {
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            padding: 8px 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background: #fff;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-        .table-controls select:focus {
-            outline: none;
-            border-color: #4299e1;
-            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -298,6 +278,7 @@
         tr.category-row {
             background: #f0f4f8;
             font-weight: 700;
+            border-top: 2px solid #ddd;
         }
         tr.subcategory-row[data-level="1"] {
             background: #f9fafb;
@@ -320,9 +301,11 @@
             margin-right: 10px;
             cursor: pointer;
             transition: transform 0.3s;
+            color: #4299e1;
         }
         .toggle-icon.expanded {
             transform: rotate(90deg);
+            color: #2c5282;
         }
         .m1-row {
             border-left: 4px solid #48bb78;
@@ -427,15 +410,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
         <section class="table-section">
             <h2>Składniki M3</h2>
             <div class="table-container">
-                <div class="table-controls">
-                    <select id="sort-selector">
-                        <option value="default">Układ domyślny (hierarchia)</option>
-                        <option value="mm_pln">Sortuj po: Zmiana m/m (mld PLN)</option>
-                        <option value="mm_percent">Sortuj po: Zmiana m/m (%)</option>
-                        <option value="rr_pln">Sortuj po: Zmiana r/r (mld PLN)</option>
-                        <option value="rr_percent">Sortuj po: Zmiana r/r (%)</option>
-                    </select>
-                </div>
                 <table id="m3-table">
                     <thead>
                         <tr>
@@ -684,84 +658,39 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     ]
                 });
 
+                // Funkcja formatowania wartości
+                const formatValue = (value, type = 'value') => {
+                    if (value === null) return '<span class="neutral">Brak danych</span>';
+                    if (type === 'value') return value.toFixed(2);
+                    if (type === 'share') return value.toFixed(2) + '%';
+                    if (type === 'change') {
+                        return `<span class="${value >= 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">${value >= 0 ? '+' : ''}${value.toFixed(2)}</span>`;
+                    }
+                    if (type === 'percent') {
+                        return `<span class="${value >= 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">${value >= 0 ? '+' : ''}${value.toFixed(2)}%</span>`;
+                    }
+                };
+
                 // Renderowanie tabeli
                 const tableBody = document.querySelector('#m3-table tbody');
-                const renderTable = (data, sortKey = 'default') => {
+                const renderTable = (data) => {
                     tableBody.innerHTML = '';
                     
-                    // Mapa do przechowywania stanu rozwinięcia kategorii
-                    let expandedState = {};
-                    
-                    // Zachowaj stan rozwinięcia przed ponownym renderowaniem
-                    document.querySelectorAll('.toggle-icon').forEach(icon => {
-                        const row = icon.closest('tr');
-                        if (row && row.dataset.id) {
-                            expandedState[row.dataset.id] = icon.classList.contains('expanded');
-                        }
-                    });
-                    
-                    // Kopiuj dane do sortowania
-                    const sortedData = JSON.parse(JSON.stringify(data));
-                    
-                    // Funkcja do sortowania podkategorii
-                    const sortSubcategories = (categories, key) => {
-                        if (!categories) return categories;
-                        
-                        if (key !== 'default') {
-                            categories.sort((a, b) => {
-                                // Nie sortuj elementów oznaczonych jako referencyjne (np. M1 w M2)
-                                if (a.reference) return -1;
-                                if (b.reference) return 1;
-                                
-                                const aValue = a.metrics[key] !== null ? a.metrics[key] : -Infinity;
-                                const bValue = b.metrics[key] !== null ? b.metrics[key] : -Infinity;
-                                return bValue - aValue;
-                            });
-                        }
-                        
-                        // Rekurencyjnie sortuj podkategorie
-                        categories.forEach(category => {
-                            if (category.subcategories) {
-                                category.subcategories = sortSubcategories(category.subcategories, key);
-                            }
-                        });
-                        
-                        return categories;
-                    };
-                    
-                    // Sortuj dane tylko jeśli wybrano opcję sortowania
-                    if (sortKey !== 'default') {
-                        sortedData.forEach(category => {
-                            if (category.subcategories) {
-                                category.subcategories = sortSubcategories(category.subcategories, sortKey);
-                            }
-                        });
-                    }
-                    
-                    const formatValue = (value, type = 'value') => {
-                        if (value === null) return '<span class="neutral">Brak danych</span>';
-                        if (type === 'value') return value.toFixed(2);
-                        if (type === 'share') return value.toFixed(2) + '%';
-                        if (type === 'change') {
-                            return `<span class="${value >= 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">${value >= 0 ? '+' : ''}${value.toFixed(2)}</span>`;
-                        }
-                        if (type === 'percent') {
-                            return `<span class="${value >= 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">${value >= 0 ? '+' : ''}${value.toFixed(2)}%</span>`;
-                        }
-                    };
-
-                    const createRow = (item, level = 0, isSubcategory = false, parentExpanded = true) => {
-                        const wasExpanded = expandedState[item.id] || false;
-                        const isExpanded = level === 0 ? true : (parentExpanded && wasExpanded);
-                        
+                    // Funkcja do tworzenia wiersza tabeli
+                    const createRow = (item, level = 0, isSubcategory = false) => {
                         const row = document.createElement('tr');
-                        row.className = `${isSubcategory ? 'subcategory-row' : 'category-row'} ${item.category ? item.category + '-row' : ''} ${isExpanded || level === 0 ? '' : 'hidden'}`;
+                        row.className = `${isSubcategory ? 'subcategory-row' : 'category-row'} ${item.category ? item.category + '-row' : ''}`;
                         row.dataset.id = item.id;
                         row.dataset.level = level;
+                        
+                        // Ukrywaj tylko podkategorie wyższych poziomów (nie ukrywaj głównych kategorii)
+                        if (level > 0 && !['m3', 'm2', 'm1'].includes(item.id)) {
+                            row.classList.add('hidden');
+                        }
 
-                        const toggleIcon = item.subcategories && item.subcategories.length > 0
-                            ? `<span class="toggle-icon${isExpanded ? ' expanded' : ''}">${isExpanded ? '▶' : '▶'}</span>`
-                            : '';
+                        // Dodaj ikonę rozwinięcia tylko dla elementów z podkategoriami (ale nie dla referencyjnych)
+                        const hasToggle = item.subcategories && item.subcategories.length > 0 && !item.reference;
+                        const toggleIcon = hasToggle ? '<span class="toggle-icon">▶</span>' : '';
 
                         row.innerHTML = `
                             <td>${toggleIcon}${item.name}</td>
@@ -773,18 +702,28 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                             <td>${formatValue(item.metrics.rrPercent, 'percent')}</td>
                         `;
 
-                        if (item.subcategories && item.subcategories.length > 0) {
-                            row.querySelector('.toggle-icon').addEventListener('click', () => {
-                                const isNowExpanded = !row.querySelector('.toggle-icon').classList.contains('expanded');
-                                row.querySelector('.toggle-icon').classList.toggle('expanded', isNowExpanded);
-                                item.subcategories.forEach(sub => {
-                                    const subRow = tableBody.querySelector(`tr[data-id="${sub.id}"]`);
-                                    if (subRow) subRow.classList.toggle('hidden', !isNowExpanded);
-                                    if (sub.subcategories) {
-                                        sub.subcategories.forEach(subSub => {
-                                            const subSubRow = tableBody.querySelector(`tr[data-id="${subSub.id}"]`);
-                                            if (subSubRow) subSubRow.classList.toggle('hidden', !isNowExpanded);
-                                        });
+                        // Dodaj obsługę zwijania/rozwijania
+                        if (hasToggle) {
+                            row.querySelector('.toggle-icon').addEventListener('click', (e) => {
+                                const icon = e.target;
+                                const isExpanded = icon.classList.toggle('expanded');
+                                
+                                // Znajdź wszystkie bezpośrednie dzieci tego elementu
+                                const children = item.subcategories.map(sub => sub.id);
+                                
+                                // Pokaż/ukryj bezpośrednie dzieci
+                                children.forEach(childId => {
+                                    const childRow = tableBody.querySelector(`tr[data-id="${childId}"]`);
+                                    if (childRow) {
+                                        childRow.classList.toggle('hidden', !isExpanded);
+                                        
+                                        // Jeśli zwijamy, upewnij się że wszystkie dzieci również są zwinięte
+                                        if (!isExpanded) {
+                                            const childToggle = childRow.querySelector('.toggle-icon');
+                                            if (childToggle && childToggle.classList.contains('expanded')) {
+                                                childToggle.click(); // Symuluj kliknięcie, aby zwinąć
+                                            }
+                                        }
                                     }
                                 });
                             });
@@ -792,14 +731,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
                         tableBody.appendChild(row);
 
+                        // Dodaj podkategorie
                         if (item.subcategories) {
                             item.subcategories.forEach(sub => {
-                                createRow(sub, level + 1, true, isExpanded);
-                                if (sub.subcategories) {
-                                    sub.subcategories.forEach(subSub => {
-                                        createRow(subSub, level + 2, true, isExpanded);
-                                    });
-                                }
+                                createRow(sub, level + 1, true);
                             });
                         }
                     };
@@ -807,33 +742,15 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     // Renderuj główne kategorie w ustalonej kolejności
                     const orderedIds = ['m1', 'm2', 'm3'];
                     orderedIds.forEach(id => {
-                        const category = sortedData.find(d => d.id === id);
+                        const category = data.find(d => d.id === id);
                         if (category) {
                             createRow(category);
                         }
                     });
                 };
 
-                // Funkcja debounce
-                const debounce = (func, wait) => {
-                    let timeout;
-                    return function executedFunction(...args) {
-                        const later = () => {
-                            clearTimeout(timeout);
-                            func(...args);
-                        };
-                        clearTimeout(timeout);
-                        timeout = setTimeout(later, wait);
-                    };
-                };
-
-                // Renderuj tabelę początkowo
+                // Wywołanie początkowe
                 renderTable(tableData);
-
-                // Użyj debounce dla zdarzeń zmiany sortowania
-                document.getElementById('sort-selector').addEventListener('change', debounce((e) => {
-                    renderTable(tableData, e.target.value);
-                }, 100));
 
                 // Oblicz zmiany dla wykresu zmian
                 const calculateChanges = (period, unit) => {
