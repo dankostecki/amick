@@ -241,6 +241,144 @@
         .toggle-switch input:focus + .toggle-slider {
             box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
         }
+
+        /* Style dla sekcji tabeli */
+        .table-section {
+            margin-top: 60px;
+        }
+
+        .table-container {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        #money-supply-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        #money-supply-table th {
+            background: linear-gradient(135deg, #1a3c5e, #2c5282);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #money-supply-table th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        #money-supply-table th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        #money-supply-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.2s;
+        }
+
+        #money-supply-table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        #money-supply-table tr.level-0 {
+            font-weight: 700;
+            background-color: #f0f4f8;
+        }
+
+        #money-supply-table tr.level-1 {
+            font-weight: 600;
+        }
+
+        #money-supply-table tr.level-2 {
+            font-weight: 500;
+        }
+
+        #money-supply-table tr.level-3,
+        #money-supply-table tr.level-4 {
+            font-weight: 400;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 5px;
+            font-size: 14px;
+            color: #4299e1;
+            margin-right: 5px;
+        }
+
+        .toggle-btn:hover {
+            color: #2b6cb0;
+        }
+
+        .toggle-btn:focus {
+            outline: none;
+        }
+
+        .indented {
+            padding-left: 20px;
+        }
+
+        .double-indented {
+            padding-left: 40px;
+        }
+
+        .triple-indented {
+            padding-left: 60px;
+        }
+
+        .quad-indented {
+            padding-left: 80px;
+        }
+
+        .positive-value {
+            color: #28a745;
+        }
+
+        .negative-value {
+            color: #dc3545;
+        }
+
+        .hidden-row {
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            #money-supply-table {
+                font-size: 0.8rem;
+            }
+            
+            #money-supply-table th,
+            #money-supply-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 10px;
+            }
+            
+            #money-supply-table {
+                font-size: 0.7rem;
+            }
+            
+            #money-supply-table th,
+            #money-supply-table td {
+                padding: 6px 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -321,7 +459,31 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 </div>
             </div>
         </section>
+
+        <!-- Nowa sekcja tabeli -->
+        <section class="table-section">
+            <h2>Struktura Agregatów Pieniężnych</h2>
+            <div class="table-container">
+                <table id="money-supply-table">
+                    <thead>
+                        <tr>
+                            <th>Składnik M3</th>
+                            <th>Wartość nominalna (mld PLN)</th>
+                            <th>Udział (%)</th>
+                            <th>Zmiana m/m (mld PLN)</th>
+                            <th>Zmiana m/m (%)</th>
+                            <th>Zmiana r/r (mld PLN)</th>
+                            <th>Zmiana r/r (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dane zostaną dodane przez JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
+
     <script>
         function isMobileDevice() {
             return window.innerWidth <= 768;
@@ -990,7 +1152,449 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
             }
         }
 
-        window.onload = loadData;
+        // Struktura danych dla tabeli z przypisanymi column_id
+        const moneySupplyStructure = [
+            {
+                name: "Pieniądz M3",
+                level: 0,
+                expanded: true,
+                isExpandable: false,
+                columnId: 23,
+                children: []
+            },
+            {
+                name: "Pieniądz M2",
+                level: 1,
+                expanded: false,
+                isExpandable: true,
+                columnId: 19,
+                children: [
+                    {
+                        name: "Depozyty i inne zobowiązania do 2 lat włącznie",
+                        level: 2,
+                        expanded: false,
+                        isExpandable: true,
+                        columnId: 12,
+                        children: [
+                            {
+                                name: "Gospodarstwa domowe (do 2 lat)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 13,
+                                children: []
+                            },
+                            {
+                                name: "Pozostałe instytucje finansowe (do 2 lat)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 14,
+                                children: []
+                            },
+                            {
+                                name: "Przedsiębiorstwa niefinansowe (do 2 lat)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 15,
+                                children: []
+                            },
+                            {
+                                name: "Instytucje niekomercyjne działające na rzecz gospodarstw domowych (do 2 lat)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 16,
+                                children: []
+                            },
+                            {
+                                name: "Instytucje samorządowe (do 2 lat)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 17,
+                                children: []
+                            },
+                            {
+                                name: "Fundusze zabezpieczenia społecznego (do 2 lat)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 18,
+                                children: []
+                            }
+                        ]
+                    },
+                    {
+                        name: "Pieniądz M1",
+                        level: 2,
+                        expanded: false,
+                        isExpandable: true,
+                        columnId: 11,
+                        children: [
+                            {
+                                name: "Depozyty i inne zobowiązania bieżące",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: true,
+                                columnId: 4,
+                                children: [
+                                    {
+                                        name: "Gospodarstwa domowe (bieżące)",
+                                        level: 4,
+                                        expanded: false,
+                                        isExpandable: false,
+                                        columnId: 5,
+                                        children: []
+                                    },
+                                    {
+                                        name: "Pozostałe instytucje finansowe (bieżące)",
+                                        level: 4,
+                                        expanded: false,
+                                        isExpandable: false,
+                                        columnId: 6,
+                                        children: []
+                                    },
+                                    {
+                                        name: "Przedsiębiorstwa niefinansowe (bieżące)",
+                                        level: 4,
+                                        expanded: false,
+                                        isExpandable: false,
+                                        columnId: 7,
+                                        children: []
+                                    },
+                                    {
+                                        name: "Instytucje niekomercyjne działające na rzecz gospodarstw domowych (bieżące)",
+                                        level: 4,
+                                        expanded: false,
+                                        isExpandable: false,
+                                        columnId: 8,
+                                        children: []
+                                    },
+                                    {
+                                        name: "Instytucje samorządowe (bieżące)",
+                                        level: 4,
+                                        expanded: false,
+                                        isExpandable: false,
+                                        columnId: 9,
+                                        children: []
+                                    },
+                                    {
+                                        name: "Fundusze zabezpieczenia społecznego (bieżące)",
+                                        level: 4,
+                                        expanded: false,
+                                        isExpandable: false,
+                                        columnId: 10,
+                                        children: []
+                                    }
+                                ]
+                            },
+                            {
+                                name: "PIENIĄDZ GOTÓWKOWY W OBIEGU (POZA KASAMI MIF)",
+                                level: 3,
+                                expanded: false,
+                                isExpandable: false,
+                                columnId: 1,
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "Operacje z przyrzeczeniem odkupu",
+                level: 1,
+                expanded: false,
+                isExpandable: false,
+                columnId: 20,
+                children: []
+            },
+            {
+                name: "Emisja dłużnych papierów wartościowych z terminem pierwotnym do 2 lat (włącznie)",
+                level: 1,
+                expanded: false,
+                isExpandable: false,
+                columnId: 21,
+                children: []
+            },
+            {
+                name: "Emisja udziałów / jednostek uczestnictwa w funduszach rynku pieniężnego",
+                level: 1,
+                expanded: false,
+                isExpandable: false,
+                columnId: 22,
+                children: []
+            }
+        ];
+
+        // Funkcja pobierania i przetwarzania danych dla tabeli
+        async function fetchAndProcessTableData() {
+            try {
+                const response = await fetch('am_data.json');
+                if (!response.ok) {
+                    throw new Error(`Problem z pobieraniem danych: ${response.status} ${response.statusText}`);
+                }
+                const jsonData = await response.json();
+                
+                if (!jsonData.columns || !Array.isArray(jsonData.columns)) {
+                    throw new Error('Nieprawidłowa struktura danych JSON: brak tablicy columns');
+                }
+
+                // Mapowanie danych z JSON do naszej struktury
+                processMoneySupplyData(jsonData, moneySupplyStructure);
+                
+                // Wypełnij tabelę danymi
+                populateTable();
+            } catch (error) {
+                console.error('Błąd podczas przetwarzania danych tabeli:', error);
+                document.querySelector('#money-supply-table tbody').innerHTML = 
+                    `<tr><td colspan="7">Błąd podczas wczytywania danych: ${error.message}</td></tr>`;
+            }
+        }
+
+        // Funkcja przetwarzająca dane tabeli
+        function processMoneySupplyData(jsonData, structure) {
+            // Znajdź dane dla M3 do obliczenia udziału procentowego
+            const m3Data = jsonData.columns.find(col => col.column_id === 23);
+            const m3Value = m3Data && m3Data.data.length > 0 ? m3Data.data[m3Data.data.length - 1].value / 1000 : 0;
+            
+            // Funkcja rekurencyjnie przetwarzająca strukturę
+            function processNode(node) {
+                const columnData = jsonData.columns.find(col => col.column_id === node.columnId);
+                
+                if (columnData && columnData.data && columnData.data.length > 0) {
+                    const data = columnData.data;
+                    const latest = data[data.length - 1];
+                    const latestValue = latest.value / 1000; // Konwersja na mld PLN
+                    const latestDateObj = new Date(latest.date);
+                    
+                    // Oblicz zmianę miesiąc do miesiąca
+                    const prevMonthDate = new Date(latestDateObj);
+                    prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+                    const prevMonthYearMonth = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
+                    const prevMonthEntry = data.find(entry => entry.date.startsWith(prevMonthYearMonth));
+                    const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
+                    
+                    let mmChange = null, mmPercent = null;
+                    if (prevMonthValue !== null) {
+                        mmChange = latestValue - prevMonthValue;
+                        mmPercent = (mmChange / prevMonthValue) * 100;
+                    }
+                    
+                    // Oblicz zmianę rok do roku
+                    const prevYearDate = new Date(latestDateObj);
+                    prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
+                    const prevYearYearMonth = `${prevYearDate.getFullYear()}-${String(prevYearDate.getMonth() + 1).padStart(2, '0')}`;
+                    const prevYearEntry = data.find(entry => entry.date.startsWith(prevYearYearMonth));
+                    const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
+                    
+                    let rrChange = null, rrPercent = null;
+                    if (prevYearValue !== null) {
+                        rrChange = latestValue - prevYearValue;
+                        rrPercent = (rrChange / prevYearValue) * 100;
+                    }
+                    
+                    // Oblicz udział procentowy
+                    const share = (latestValue / m3Value) * 100;
+                    
+                    // Przypisz wartości do węzła
+                    node.value = latestValue;
+                    node.share = share;
+                    node.monthlyChangePLN = mmChange;
+                    node.monthlyChangePercent = mmPercent;
+                    node.yearlyChangePLN = rrChange;
+                    node.yearlyChangePercent = rrPercent;
+                    node.latestDate = latest.date;
+                } else {
+                    // Jeśli nie znaleziono danych, ustaw wartości na null
+                    console.warn(`Nie znaleziono danych dla column_id: ${node.columnId}`);
+                    node.value = null;
+                    node.share = null;
+                    node.monthlyChangePLN = null;
+                    node.monthlyChangePercent = null;
+                    node.yearlyChangePLN = null;
+                    node.yearlyChangePercent = null;
+                    node.latestDate = null;
+                }
+                
+                // Przetwórz rekurencyjnie dzieci
+                if (node.children && node.children.length > 0) {
+                    for (const child of node.children) {
+                        processNode(child);
+                    }
+                }
+            }
+            
+            // Przetwórz całą strukturę
+            for (const node of structure) {
+                processNode(node);
+            }
+        }
+
+        // Funkcja do formatowania wartości numerycznych
+        function formatNumber(num, decimals = 2) {
+            if (num === null || isNaN(num)) return 'Brak danych';
+            return num.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+        
+        // Funkcja do formatowania zmian z odpowiednim kolorem i znakiem
+        function formatChange(value, isPercentage = false) {
+            if (value === null || isNaN(value)) return 'Brak danych';
+            
+            const formattedValue = formatNumber(value, isPercentage ? 2 : 2);
+            const cssClass = value >= 0 ? 'positive-value' : 'negative-value';
+            const sign = value >= 0 ? '+' : '';
+            const suffix = isPercentage ? '%' : ' mld PLN';
+            return `<span class="${cssClass}">${sign}${formattedValue}${suffix}</span>`;
+        }
+        
+        // Funkcja generująca HTML dla wiersza tabeli
+        function generateRowHtml(item, isHidden = false) {
+            const indentClass = item.level === 1 ? 'indented' : 
+                               item.level === 2 ? 'double-indented' : 
+                               item.level === 3 ? 'triple-indented' : 
+                               item.level === 4 ? 'quad-indented' : '';
+            
+            let toggleBtn = '';
+            if (item.isExpandable) {
+                toggleBtn = `<button class="toggle-btn" data-expanded="${item.expanded}">${item.expanded ? '−' : '+'}</button>`;
+            }
+            
+            return `
+                <tr class="level-${item.level} ${isHidden ? 'hidden-row' : ''}" data-level="${item.level}" data-name="${item.name}">
+                    <td class="${indentClass}">${toggleBtn}${item.name}</td>
+                    <td>${item.value !== null ? formatNumber(item.value) + ' mld PLN' : 'Brak danych'}</td>
+                    <td>${item.share !== null ? formatNumber(item.share) + '%' : 'Brak danych'}</td>
+                    <td>${formatChange(item.monthlyChangePLN)}</td>
+                    <td>${formatChange(item.monthlyChangePercent, true)}</td>
+                    <td>${formatChange(item.yearlyChangePLN)}</td>
+                    <td>${formatChange(item.yearlyChangePercent, true)}</td>
+                </tr>
+            `;
+        }
+        
+        // Funkcja rekurencyjnie renderująca całą strukturę tabeli
+        function renderTable(container, items, parentExpanded = true) {
+            let html = '';
+            
+            for (const item of items) {
+                // Sprawdź, czy wiersz powinien być widoczny
+                const isHidden = !parentExpanded;
+                
+                // Dodaj wiersz
+                html += generateRowHtml(item, isHidden);
+                
+                // Dodaj dzieci rekurencyjnie
+                if (item.children && item.children.length > 0) {
+                    html += renderTable(container, item.children, parentExpanded && item.expanded);
+                }
+            }
+            
+            return html;
+        }
+        
+        // Wypełnij tabelę danymi
+        function populateTable() {
+            const tableBody = document.querySelector('#money-supply-table tbody');
+            tableBody.innerHTML = renderTable(tableBody, moneySupplyStructure);
+            
+            // Dodaj obsługę zdarzeń dla przycisków rozwijania/zwijania
+            const toggleButtons = document.querySelectorAll('.toggle-btn');
+            toggleButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Znajdź wiersz zawierający przycisk
+                    const row = this.closest('tr');
+                    const itemName = row.getAttribute('data-name');
+                    const itemLevel = parseInt(row.getAttribute('data-level'));
+                    
+                    // Znajdź element w strukturze danych
+                    let targetItem;
+                    function findItem(items) {
+                        for (const item of items) {
+                            if (item.name === itemName && item.level === itemLevel) {
+                                return item;
+                            }
+                            if (item.children && item.children.length > 0) {
+                                const found = findItem(item.children);
+                                if (found) return found;
+                            }
+                        }
+                        return null;
+                    }
+                    
+                    targetItem = findItem(moneySupplyStructure);
+                    if (!targetItem) return;
+                    
+                    // Przełącz stan rozwinięcia
+                    targetItem.expanded = !targetItem.expanded;
+                    this.setAttribute('data-expanded', targetItem.expanded);
+                    this.textContent = targetItem.expanded ? '−' : '+';
+                    
+                    // Aktualizuj widoczność wierszy dzieci
+                    const table = document.querySelector('#money-supply-table');
+                    const allRows = Array.from(table.querySelectorAll('tbody tr'));
+                    const rowIndex = allRows.indexOf(row);
+                    
+                    let i = rowIndex + 1;
+                    while (i < allRows.length) {
+                        const currentRow = allRows[i];
+                        const currentLevel = parseInt(currentRow.getAttribute('data-level'));
+                        
+                        // Jeśli napotkamy wiersz o poziomie mniejszym lub równym aktualnemu,
+                        // to znaczy, że wyszliśmy poza zakres dzieci
+                        if (currentLevel <= itemLevel) break;
+                        
+                        // Pokaż/ukryj bezpośrednie dzieci
+                        if (currentLevel === itemLevel + 1) {
+                            if (targetItem.expanded) {
+                                currentRow.classList.remove('hidden-row');
+                            } else {
+                                currentRow.classList.add('hidden-row');
+                            }
+                        } 
+                        // Ukryj wszystkie głębsze dzieci jeśli zwijamy rodzica
+                        else if (!targetItem.expanded) {
+                            currentRow.classList.add('hidden-row');
+                        }
+                        // Pokaż głębsze dzieci tylko jeśli ich bezpośredni rodzic jest rozwinięty
+                        else {
+                            let parentRow = null;
+                            let parentLevel = currentLevel - 1;
+                            
+                            // Znajdź najbliższego rodzica tego wiersza
+                            for (let j = i - 1; j > rowIndex; j--) {
+                                if (parseInt(allRows[j].getAttribute('data-level')) === parentLevel) {
+                                    parentRow = allRows[j];
+                                    break;
+                                }
+                            }
+                            
+                            if (parentRow) {
+                                const parentButton = parentRow.querySelector('.toggle-btn');
+                                const parentExpanded = parentButton ? parentButton.getAttribute('data-expanded') === 'true' : false;
+                                
+                                if (parentExpanded) {
+                                    currentRow.classList.remove('hidden-row');
+                                } else {
+                                    currentRow.classList.add('hidden-row');
+                                }
+                            }
+                        }
+                        
+                        i++;
+                    }
+                });
+            });
+        }
+
+        // Inicjalizacja
+        window.onload = function() {
+            loadData();
+            fetchAndProcessTableData();
+        };
     </script>
 </body>
 </html>
