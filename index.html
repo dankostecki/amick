@@ -457,8 +457,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 }
                 const jsonData = await response.json();
                 
-                if (!jsonData.columns || !Array.isArray(jsonData.columns)) {
+                // Walidacja danych wejściowych
+                if (!jsonData || !jsonData.columns || !Array.isArray(jsonData.columns)) {
                     throw new Error('Nieprawidłowa struktura danych JSON: brak tablicy columns');
+                }
+
+                // Sprawdzanie brakujących kolumn
+                const requiredColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+                const missingColumns = requiredColumns.filter(id => !jsonData.columns.some(col => col.column_id === id));
+                if (missingColumns.length > 0) {
+                    console.warn('Brakujące kolumny o ID:', missingColumns.join(', '));
                 }
 
                 const columns = {
@@ -768,7 +776,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         }
                     };
                     
-                    // Znajdź i posortuj elementy
+                    // Znjaa i posortuj elementy
                     const m3Item = data.find(item => item.id === 'm3');
                     if (!m3Item) return;
                     
@@ -1405,7 +1413,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     console.log('Zdarzenie selection wywołane', xaxis, yaxis);
                 });
             } catch (error) {
-                console.error('Błąd:', error);
+                console.error('Szczegółowy błąd:', error);
+                console.error('Komunikat błędu:', error.message);
+                console.error('Stos wywołań:', error.stack);
                 for (const key of ['m3', 'm2', 'm1']) {
                     document.getElementById(`${key}-value`).textContent = 'Błąd ładowania';
                     document.getElementById(`${key}-mm`).textContent = 'Błąd';
