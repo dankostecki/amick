@@ -202,6 +202,28 @@
             margin-top: -10px;
             margin-bottom: 20px;
         }
+        .apexcharts-selection-rect, 
+        .apexcharts-svg rect.apexcharts-zoom-rect, 
+        .apexcharts-svg rect.apexcharts-selection-rect {
+            cursor: move;
+        }
+        /* Większe uchwyty na urządzeniach mobilnych */
+        @media (max-width: 768px) {
+            .apexcharts-zoom-icon,
+            .apexcharts-selection-icon,
+            .apexcharts-reset-icon {
+                transform: scale(1.5);
+                margin: 0 5px;
+            }
+            #brush-chart-values, #brush-chart-changes {
+                height: 160px !important;
+            }
+            .apexcharts-selection-rect .apexcharts-selection-rect-handle {
+                width: 20px !important;
+                height: 20px !important;
+                transform: translate(-50%, -50%);
+            }
+        }
         @media (max-width: 768px) {
             .columns, .chart-columns {
                 flex-direction: column;
