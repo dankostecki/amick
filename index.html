@@ -141,6 +141,8 @@
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
             padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
         .toggles {
             display: flex;
@@ -195,6 +197,10 @@
         }
         input:checked + .toggle-slider:before {
             transform: translateX(20px);
+        }
+        #brush-chart-values, #brush-chart-changes {
+            margin-top: -10px;
+            margin-bottom: 20px;
         }
         @media (max-width: 768px) {
             .columns, .chart-columns {
@@ -264,6 +270,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
             <div class="chart-columns">
                 <div class="chart-column">
                     <div id="values-chart"></div>
+                    <div id="brush-chart-values"></div>
                 </div>
                 <div class="chart-column">
                     <div class="toggles">
@@ -285,6 +292,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         </div>
                     </div>
                     <div id="changes-chart"></div>
+                    <div id="brush-chart-changes"></div>
                 </div>
             </div>
         </section>
@@ -401,26 +409,24 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 // Wykres wartości
                 const valuesChartOptions = {
                     chart: {
+                        id: 'valueChart',
                         type: 'area',
                         height: 400,
                         fontFamily: 'Poppins, sans-serif',
                         zoom: {
-                            enabled: true,
-                            type: 'x',
-                            autoScaleYaxis: true
+                            enabled: false
                         },
                         toolbar: {
                             show: true,
                             tools: {
-                                download: true,
-                                selection: true,
-                                zoom: true,
-                                zoomin: true,
-                                zoomout: true,
-                                pan: true,
+                                download: false,
+                                selection: false,
+                                zoom: false,
+                                zoomin: false,
+                                zoomout: false,
+                                pan: false,
                                 reset: true
-                            },
-                            autoSelected: 'zoom'
+                            }
                         }
                     },
                     series: [
@@ -471,8 +477,60 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         horizontalAlign: 'center'
                     }
                 };
+
+                const valuesBrushOptions = {
+                    chart: {
+                        id: 'brushChartValues',
+                        height: 130,
+                        type: 'area',
+                        brush: {
+                            enabled: true,
+                            target: 'valueChart'
+                        },
+                        selection: {
+                            enabled: true,
+                            xaxis: {
+                                min: dates.length > 120 ? new Date(dates[dates.length - 120]).getTime() : new Date(dates[0]).getTime(),
+                                max: new Date(dates[dates.length - 1]).getTime()
+                            }
+                        }
+                    },
+                    colors: ['#9f7aea', '#4299e1', '#48bb78'],
+                    series: [
+                        { name: 'M3', data: valuesData.m3 },
+                        { name: 'M2', data: valuesData.m2 },
+                        { name: 'M1', data: valuesData.m1 }
+                    ],
+                    xaxis: {
+                        type: 'datetime',
+                        categories: dates,
+                        labels: { format: 'yyyy-MM' },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    yaxis: {
+                        tickAmount: 2,
+                        labels: {
+                            show: false
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    fill: {
+                        opacity: 0.1
+                    },
+                    stroke: {
+                        width: 1
+                    }
+                };
+
                 const valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
                 valuesChart.render();
+
+                const valuesBrushChart = new ApexCharts(document.querySelector('#brush-chart-values'), valuesBrushOptions);
+                valuesBrushChart.render();
 
                 // Wykres zmian
                 let currentPeriod = 'rr';
@@ -480,26 +538,24 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
                 let changesChart = new ApexCharts(document.querySelector('#changes-chart'), {
                     chart: {
+                        id: 'changesChart',
                         type: 'area',
                         height: 400,
                         fontFamily: 'Poppins, sans-serif',
                         zoom: {
-                            enabled: true,
-                            type: 'x',
-                            autoScaleYaxis: true
+                            enabled: false
                         },
                         toolbar: {
                             show: true,
                             tools: {
-                                download: true,
-                                selection: true,
-                                zoom: true,
-                                zoomin: true,
-                                zoomout: true,
-                                pan: true,
+                                download: false,
+                                selection: false,
+                                zoom: false,
+                                zoomin: false,
+                                zoomout: false,
+                                pan: false,
                                 reset: true
-                            },
-                            autoSelected: 'zoom'
+                            }
                         }
                     },
                     series: [],
@@ -531,6 +587,53 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 });
                 changesChart.render();
 
+                const changesBrushOptions = {
+                    chart: {
+                        id: 'brushChartChanges',
+                        height: 130,
+                        type: 'area',
+                        brush: {
+                            enabled: true,
+                            target: 'changesChart'
+                        },
+                        selection: {
+                            enabled: true,
+                            xaxis: {
+                                min: dates.length > 120 ? new Date(dates[dates.length - 120]).getTime() : new Date(dates[0]).getTime(),
+                                max: new Date(dates[dates.length - 1]).getTime()
+                            }
+                        }
+                    },
+                    colors: ['#9f7aea', '#4299e1', '#48bb78'],
+                    series: [],
+                    xaxis: {
+                        type: 'datetime',
+                        categories: dates,
+                        labels: { format: 'yyyy-MM' },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    yaxis: {
+                        tickAmount: 2,
+                        labels: {
+                            show: false
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    fill: {
+                        opacity: 0.1
+                    },
+                    stroke: {
+                        width: 1
+                    }
+                };
+
+                const changesBrushChart = new ApexCharts(document.querySelector('#brush-chart-changes'), changesBrushOptions);
+                changesBrushChart.render();
+
                 const updateChangesChart = () => {
                     const changes = calculateChanges(currentPeriod, currentUnit);
                     changesChart.updateSeries([
@@ -551,6 +654,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                             intersect: false
                         }
                     });
+                    changesBrushChart.updateSeries([
+                        { name: 'M3', data: changes.m3, color: '#9f7aea' },
+                        { name: 'M2', data: changes.m2, color: '#4299e1' },
+                        { name: 'M1', data: changes.m1, color: '#48bb78' }
+                    ]);
                 };
 
                 updateChangesChart();
@@ -575,6 +683,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 }
                 document.querySelector('#values-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
                 document.querySelector('#changes-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
+                document.querySelector('#brush-chart-values').innerHTML = '';
+                document.querySelector('#brush-chart-changes').innerHTML = '';
             }
         }
 
