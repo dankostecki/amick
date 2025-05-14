@@ -693,10 +693,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 const renderTable = (data) => {
                     tableBody.innerHTML = '';
                     
-                    // Znajdź M3 i sortuj jego podkategorie
-                    const m3Item = data.find(item => item.id === 'm3');
-                    if (!m3Item) return; // Jeśli nie ma M3, kończymy
-                    
                     // Funkcja do sortowania elementów według wartości
                     const sortByValue = (items) => {
                         return [...items].sort((a, b) => {
@@ -706,44 +702,32 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         });
                     };
                     
-                    // Śledź już wyrenderowane elementy
+                    // Śledź wyrenderowane elementy, aby uniknąć duplikacji
                     const renderedItems = {};
                     
-                    // Główna funkcja renderująca wiersze
-                    const createRow = (item, level = 0, isVisible = true, parentCategory = null) => {
-                        // Nie renderuj dwa razy tego samego elementu (referencje)
-                        if (renderedItems[item.id]) return;
+                    // Główna funkcja renderująca wiersz tabeli
+                    const createRow = (item, level = 0, visible = true) => {
+                        if (renderedItems[item.id]) return; // Nie renderuj tego samego elementu dwa razy
                         renderedItems[item.id] = true;
                         
-                        // Ustal kategorię wiersza (dla kolorowych pasków)
-                        // Jeśli element ma własną kategorię, użyj jej
-                        // W przeciwnym razie dziedzicz kategorię od rodzica
-                        const rowCategory = item.category || parentCategory;
-                        
                         const row = document.createElement('tr');
-                        row.className = `${level > 0 ? 'subcategory-row' : 'category-row'} ${rowCategory ? rowCategory + '-row' : ''}`;
+                        
+                        // Dodaj klasy na podstawie poziomu i kategorii
+                        row.className = `${level === 0 ? 'category-row' : 'subcategory-row'} ${item.category}-row`;
                         row.dataset.id = item.id;
                         row.dataset.level = level;
                         
-                        // Ukryj element, jeśli nie powinien być widoczny
-                        if (!isVisible) {
+                        // Ukryj elementy, które nie powinny być widoczne
+                        if (!visible) {
                             row.classList.add('hidden');
                         }
                         
-                        // Określ, czy element ma dzieci do rozwijania
+                        // Dodaj ikonę rozwijania (jeśli element ma dzieci)
                         const hasToggle = item.subcategories && item.subcategories.length > 0 && !item.reference;
+                        const toggleIcon = hasToggle ? '<span class="toggle-icon">▶</span>' : '<span style="display:inline-block;width:20px;"></span>';
                         
-                        // Dodaj ikonę rozwijania (lub spacer)
-                        let toggleHTML = '';
-                        if (hasToggle) {
-                            toggleHTML = '<span class="toggle-icon">▶</span>';
-                        } else {
-                            toggleHTML = '<span style="display:inline-block;width:20px;"></span>';
-                        }
-                        
-                        // Nie używaj inline stylów dla wcięć, korzystaj z atrybutu data-level
                         row.innerHTML = `
-                            <td>${toggleHTML}${item.name}</td>
+                            <td>${toggleIcon}${item.name}</td>
                             <td>${formatValue(item.metrics.value)}</td>
                             <td>${formatValue(item.metrics.share, 'share')}</td>
                             <td>${formatValue(item.metrics.mmChange, 'change')}</td>
@@ -754,28 +738,28 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         
                         tableBody.appendChild(row);
                         
-                        // Dodaj obsługę kliknięcia na ikonę rozwijania
+                        // Dodaj obsługę kliknięcia (rozwijanie/zwijanie)
                         if (hasToggle) {
                             const icon = row.querySelector('.toggle-icon');
                             icon.addEventListener('click', () => {
+                                // Przełącz stan ikony (obrót)
                                 const isExpanded = icon.classList.toggle('expanded');
                                 
-                                // Dla każdego bezpośredniego dziecka
+                                // Pokaż/ukryj bezpośrednie dzieci
                                 if (item.subcategories) {
-                                    item.subcategories.forEach(subItem => {
-                                        // Znajdź wiersz odpowiadający dziecku
-                                        const childRow = document.querySelector(`tr[data-id="${subItem.id}"]`);
+                                    item.subcategories.forEach(child => {
+                                        // Znajdź odpowiedni wiersz
+                                        const childRow = document.querySelector(`tr[data-id="${child.id}"]`);
                                         if (childRow) {
-                                            // Pokaż/ukryj dziecko
+                                            // Pokaż/ukryj wiersz
                                             childRow.classList.toggle('hidden', !isExpanded);
                                             
-                                            // Jeśli zwijamy, zwijamy też wszystkie dzieci
+                                            // Jeśli zwijamy, zwinąć też wszystkie dzieci
                                             if (!isExpanded) {
-                                                // Znajdź wszystkie rozwinięte ikony wśród dzieci
-                                                const expandedIcons = childRow.querySelectorAll('.toggle-icon.expanded');
-                                                expandedIcons.forEach(expandedIcon => {
-                                                    expandedIcon.click(); // Symuluj kliknięcie, aby zwinąć
-                                                });
+                                                const childIcon = childRow.querySelector('.toggle-icon.expanded');
+                                                if (childIcon) {
+                                                    childIcon.click(); // Symuluj kliknięcie
+                                                }
                                             }
                                         }
                                     });
@@ -784,71 +768,69 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         }
                     };
                     
-                    // 1. Najpierw renderuj M3 (zawsze widoczny)
+                    // Znajdź i posortuj elementy
+                    const m3Item = data.find(item => item.id === 'm3');
+                    if (!m3Item) return;
+                    
+                    // Posortuj subcategories wewnątrz M3 (ale nie zmieniaj kolejności dla M2 i M1)
+                    const m2Item = m3Item.subcategories.find(item => item.id === 'm2');
+                    
+                    // 1. Renderuj M3 (główna kategoria)
                     createRow(m3Item, 0, true);
                     
-                    // 2. Znajdź i renderuj M2 (bezpośrednie dziecko M3, widoczne)
-                    const m2Item = m3Item.subcategories.find(item => item.id === 'm2');
+                    // 2. Renderuj M2 (bezpośrednio pod M3) jako widoczne
                     if (m2Item) {
-                        createRow(m2Item, 1, true, 'm2');  // przekaż 'm2' jako kategorię rodzica
-                    }
-                    
-                    // 3. Znajdź M1 (bezpośrednie dziecko M2 lub M3, widoczne)
-                    let m1Item = null;
-                    if (m2Item && m2Item.subcategories) {
-                        m1Item = m2Item.subcategories.find(item => item.id === 'm1');
+                        createRow(m2Item, 1, true);
+                        
+                        // 3. Znajdź M1 (wewnątrz M2)
+                        const m1Item = m2Item.subcategories.find(item => item.id === 'm1');
                         if (m1Item) {
-                            createRow(m1Item, 1, true, 'm1');  // przekaż 'm1' jako kategorię rodzica
+                            // Renderuj M1 (pod M2) jako widoczne
+                            createRow(m1Item, 2, true);
+                            
+                            // Renderuj dzieci M1 (ukryte)
+                            if (m1Item.subcategories) {
+                                const sortedM1Children = sortByValue(m1Item.subcategories);
+                                sortedM1Children.forEach(child => {
+                                    createRow(child, 3, false);
+                                    
+                                    // Renderuj jeszcze głębsze dzieci (ukryte)
+                                    if (child.subcategories) {
+                                        sortByValue(child.subcategories).forEach(grandchild => {
+                                            createRow(grandchild, 4, false);
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                        
+                        // Renderuj pozostałe dzieci M2 (ukryte)
+                        if (m2Item.subcategories) {
+                            const otherM2Children = m2Item.subcategories.filter(item => item.id !== 'm1');
+                            const sortedM2Children = sortByValue(otherM2Children);
+                            sortedM2Children.forEach(child => {
+                                createRow(child, 2, false);
+                                
+                                // Renderuj dzieci tych elementów (ukryte)
+                                if (child.subcategories) {
+                                    sortByValue(child.subcategories).forEach(grandchild => {
+                                        createRow(grandchild, 3, false);
+                                    });
+                                }
+                            });
                         }
                     }
                     
-                    // 4. Renderuj inne bezpośrednie dzieci M3 (sortowane po wartości, widoczne)
-                    const otherM3Children = m3Item.subcategories.filter(item => item.id !== 'm2' && item.id !== 'm1');
-                    const sortedM3Children = sortByValue(otherM3Children);
-                    sortedM3Children.forEach(child => {
-                        createRow(child, 1, true, 'm3');  // przekaż 'm3' jako kategorię rodzica
-                    });
-                    
-                    // 5. Renderuj dzieci M2 (ukryte dopóki M2 nie zostanie rozwinięte)
-                    if (m2Item && m2Item.subcategories) {
-                        // Renderuj pozostałe dzieci M2 (sortowane po wartości)
-                        const otherM2Children = m2Item.subcategories.filter(item => item.id !== 'm1');
-                        const sortedM2Children = sortByValue(otherM2Children);
-                        sortedM2Children.forEach(child => {
-                            createRow(child, 2, false, 'm2');  // przekaż 'm2' jako kategorię rodzica
-                            
-                            // Renderuj dzieci tych elementów
-                            if (child.subcategories) {
-                                const sortedGrandchildren = sortByValue(child.subcategories);
-                                sortedGrandchildren.forEach(grandchild => {
-                                    createRow(grandchild, 3, false, 'm2');  // zachowaj kategorię rodzica
-                                });
-                            }
-                        });
-                    }
-                    
-                    // 6. Renderuj dzieci M1 (jeszcze głębszy poziom, także ukryte)
-                    if (m1Item && m1Item.subcategories) {
-                        const sortedM1Children = sortByValue(m1Item.subcategories);
-                        sortedM1Children.forEach(child => {
-                            createRow(child, 2, false, 'm1');  // przekaż 'm1' jako kategorię rodzica
-                            
-                            // Jeśli dziecko M1 ma dalsze dzieci, też je renderuj
-                            if (child.subcategories) {
-                                const sortedGrandchildren = sortByValue(child.subcategories);
-                                sortedGrandchildren.forEach(grandchild => {
-                                    createRow(grandchild, 3, false, 'm1');  // zachowaj kategorię rodzica
-                                });
-                            }
-                        });
-                    }
-                    
-                    // 7. Renderuj dzieci pozostałych kategorii (ukryte)
-                    sortedM3Children.forEach(child => {
-                        if (child.subcategories) {
-                            const sortedChildren = sortByValue(child.subcategories);
-                            sortedChildren.forEach(grandchild => {
-                                createRow(grandchild, 2, false, 'm3');  // przekaż 'm3' jako kategorię rodzica
+                    // 4. Renderuj pozostałe elementy M3 (poza M2)
+                    const otherM3Items = m3Item.subcategories.filter(item => item.id !== 'm2');
+                    const sortedM3Items = sortByValue(otherM3Items);
+                    sortedM3Items.forEach(item => {
+                        createRow(item, 1, true);
+                        
+                        // Renderuj ich dzieci (ukryte)
+                        if (item.subcategories) {
+                            sortByValue(item.subcategories).forEach(child => {
+                                createRow(child, 2, false);
                             });
                         }
                     });
