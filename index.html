@@ -107,9 +107,6 @@
         .negative {
             color: #dc3545;
         }
-        .neutral {
-            color: #666;
-        }
         .date-info {
             font-size: 0.8rem;
             color: #666;
@@ -244,106 +241,6 @@
         .toggle-switch input:focus + .toggle-slider {
             box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
         }
-        /* Style dla tabeli */
-        .table-section {
-            margin-top: 60px;
-        }
-        .table-container {
-            background: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid #e8eff5;
-        }
-        th:first-child, td:first-child {
-            text-align: left;
-        }
-        th {
-            background: linear-gradient(135deg, #f4f7fa, #e8eff5);
-            font-weight: 600;
-            color: #1a3c5e;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        tr.category-row {
-            background: #f0f4f8;
-            font-weight: 700;
-            border-top: 2px solid #ddd;
-        }
-        tr.subcategory-row[data-level="1"] {
-            background: #f9fafb;
-            font-weight: 600;
-        }
-        tr.subcategory-row[data-level="2"] {
-            background: #fff;
-            font-weight: normal;
-        }
-        tr.subcategory-row[data-level="3"] {
-            background: #fff;
-            font-weight: normal;
-        }
-        tr.subcategory-row[data-level="4"] {
-            background: #fff;
-            font-weight: normal;
-        }
-        tr.subcategory-row[data-level="1"] td:first-child {
-            padding-left: 30px;
-        }
-        tr.subcategory-row[data-level="2"] td:first-child {
-            padding-left: 50px;
-        }
-        tr.subcategory-row[data-level="3"] td:first-child {
-            padding-left: 70px;
-        }
-        tr.subcategory-row[data-level="4"] td:first-child {
-            padding-left: 90px;
-        }
-        .toggle-icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            cursor: pointer;
-            transition: transform 0.3s;
-            color: #4299e1;
-        }
-        .toggle-icon.expanded {
-            transform: rotate(90deg);
-            color: #2c5282;
-        }
-        tr[data-id="m3"] .toggle-icon {
-            display: none;
-        }
-        .m1-row {
-            border-left: 4px solid #48bb78;
-        }
-        .m2-row {
-            border-left: 4px solid #4299e1;
-        }
-        .m3-row {
-            border-left: 4px solid #9f7aea;
-        }
-        tr.hidden {
-            display: none;
-        }
-        @media (max-width: 768px) {
-            .table-container {
-                overflow-x: auto;
-            }
-            table {
-                min-width: 800px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -424,25 +321,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 </div>
             </div>
         </section>
-        <section class="table-section">
-            <h2>Składniki M3</h2>
-            <div class="table-container">
-                <table id="m3-table">
-                    <thead>
-                        <tr>
-                            <th>Składnik M3</th>
-                            <th>Wartość nominalna (mld PLN)</th>
-                            <th>Udział (%)</th>
-                            <th>Zmiana m/m (mld PLN)</th>
-                            <th>Zmiana m/m (%)</th>
-                            <th>Zmiana r/r (mld PLN)</th>
-                            <th>Zmiana r/r (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
     </div>
     <script>
         function isMobileDevice() {
@@ -457,46 +335,18 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 }
                 const jsonData = await response.json();
                 
-                // Walidacja danych wejściowych
-                if (!jsonData || !jsonData.columns || !Array.isArray(jsonData.columns)) {
+                if (!jsonData.columns || !Array.isArray(jsonData.columns)) {
                     throw new Error('Nieprawidłowa struktura danych JSON: brak tablicy columns');
-                }
-
-                // Sprawdzanie brakujących kolumn
-                const requiredColumns = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-                const missingColumns = requiredColumns.filter(id => !jsonData.columns.some(col => col.column_id === id));
-                if (missingColumns.length > 0) {
-                    console.warn('Brakujące kolumny o ID:', missingColumns.join(', '));
                 }
 
                 const columns = {
                     m3: jsonData.columns.find(col => col.column_id === 23),
                     m2: jsonData.columns.find(col => col.column_id === 19),
-                    m1: jsonData.columns.find(col => col.column_id === 11),
-                    cash_outside_mif: jsonData.columns.find(col => col.column_id === 1),
-                    cash_with_mif: jsonData.columns.find(col => col.column_id === 2),
-                    cash_in_mif: jsonData.columns.find(col => col.column_id === 3),
-                    deposits_current: jsonData.columns.find(col => col.column_id === 4),
-                    households_current: jsonData.columns.find(col => col.column_id === 5),
-                    other_fin_current: jsonData.columns.find(col => col.column_id === 6),
-                    nonfin_current: jsonData.columns.find(col => col.column_id === 7),
-                    nonprofit_current: jsonData.columns.find(col => col.column_id === 8),
-                    localgov_current: jsonData.columns.find(col => col.column_id === 9),
-                    social_funds_current: jsonData.columns.find(col => col.column_id === 10),
-                    deposits_2y: jsonData.columns.find(col => col.column_id === 12),
-                    households_2y: jsonData.columns.find(col => col.column_id === 13),
-                    other_fin_2y: jsonData.columns.find(col => col.column_id === 14),
-                    nonfin_2y: jsonData.columns.find(col => col.column_id === 15),
-                    nonprofit_2y: jsonData.columns.find(col => col.column_id === 16),
-                    localgov_2y: jsonData.columns.find(col => col.column_id === 17),
-                    social_funds_2y: jsonData.columns.find(col => col.column_id === 18),
-                    repo_operations: jsonData.columns.find(col => col.column_id === 20),
-                    debt_securities_2y: jsonData.columns.find(col => col.column_id === 21),
-                    money_market_funds: jsonData.columns.find(col => col.column_id === 22)
+                    m1: jsonData.columns.find(col => col.column_id === 11)
                 };
 
                 // Przetwarzanie danych dla ramek
-                for (const [key, column] of Object.entries({ m3: columns.m3, m2: columns.m2, m1: columns.m1 })) {
+                for (const [key, column] of Object.entries(columns)) {
                     if (!column) {
                         document.getElementById(`${key}-value`).textContent = 'Brak danych';
                         document.getElementById(`${key}-mm`).textContent = 'Brak danych';
@@ -539,11 +389,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     document.getElementById(`${key}-mm`).textContent = prevMonthValue !== null
                         ? `${mmChange >= 0 ? '+' : ''}${mmChange.toFixed(2)} mld m/m (${mmPercent.toFixed(2)}%)`
                         : 'Brak danych m/m';
-                    document.getElementById(`${key}-mm`).className = `change ${mmChange >= 0 ? 'positive' : mmChange < 0 ? 'negative' : 'neutral'}`;
+                    document.getElementById(`${key}-mm`).className = `change ${mmChange >= 0 ? 'positive' : 'negative'}`;
                     document.getElementById(`${key}-rr`).textContent = prevYearValue !== null
                         ? `${rrChange >= 0 ? '+' : ''}${rrChange.toFixed(2)} mld r/r (${rrPercent.toFixed(2)}%)`
                         : 'Brak danych r/r';
-                    document.getElementById(`${key}-rr`).className = `change ${rrChange >= 0 ? 'positive' : rrChange < 0 ? 'negative' : 'neutral'}`;
+                    document.getElementById(`${key}-rr`).className = `change ${rrChange >= 0 ? 'positive' : 'negative'}`;
                     document.getElementById(`${key}-date`).textContent = `Stan na ${latest.date}, źródło: NBP`;
                     document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
                 }
@@ -558,294 +408,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     m2: columns.m2 ? columns.m2.data.map(d => d.value / 1000) : [],
                     m1: columns.m1 ? columns.m1.data.map(d => d.value / 1000) : []
                 };
-
-                // Przetwarzanie danych dla tabeli
-                const tableData = [];
-                const m3Total = columns.m3 && columns.m3.data.length > 0 ? columns.m3.data[columns.m3.data.length - 1].value / 1000 : null;
-
-                const calculateMetrics = (column, latestDateObj) => {
-                    if (!column || !column.data || column.data.length === 0) {
-                        return {
-                            value: null,
-                            share: null,
-                            mmChange: null,
-                            mmPercent: null,
-                            rrChange: null,
-                            rrPercent: null
-                        };
-                    }
-                    const data = column.data;
-                    const latest = data[data.length - 1];
-                    const latestValue = latest.value / 1000;
-                    const latestMonth = latestDateObj.getMonth();
-                    const latestYear = latestDateObj.getFullYear();
-
-                    const prevMonth = latestMonth === 0 ? 11 : latestMonth - 1;
-                    const prevYear = latestMonth === 0 ? latestYear - 1 : latestYear;
-                    const prevMonthYearMonth = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
-                    const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthYearMonth);
-                    const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
-
-                    const prevYearDate = new Date(latestDateObj);
-                    prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
-                    const prevYearYearMonth = prevYearDate.toISOString().slice(0, 7);
-                    const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearYearMonth);
-                    const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
-
-                    let mmChange = null, mmPercent = null, rrChange = null, rrPercent = null;
-                    if (prevMonthValue !== null) {
-                        mmChange = latestValue - prevMonthValue;
-                        mmPercent = (mmChange / prevMonthValue) * 100;
-                    }
-                    if (prevYearValue !== null) {
-                        rrChange = latestValue - prevYearValue;
-                        rrPercent = (rrChange / prevYearValue) * 100;
-                    }
-
-                    return {
-                        value: latestValue,
-                        share: m3Total ? (latestValue / m3Total * 100) : null,
-                        mmChange,
-                        mmPercent,
-                        rrChange,
-                        rrPercent
-                    };
-                };
-
-                const latestDateObj = columns.m3 && columns.m3.data.length > 0 ? new Date(columns.m3.data[columns.m3.data.length - 1].date) : new Date();
-
-                // M1
-                const m1Metrics = calculateMetrics(columns.m1, latestDateObj);
-                tableData.push({
-                    id: 'm1',
-                    name: 'Pieniądz M1',
-                    category: 'm1',
-                    metrics: m1Metrics,
-                    subcategories: [
-                        {
-                            id: 'cash_outside_mif',
-                            name: 'Pieniądz gotówkowy w obiegu (poza kasami MIF)',
-                            metrics: calculateMetrics(columns.cash_outside_mif, latestDateObj)
-                        },
-                        {
-                            id: 'deposits_current',
-                            name: 'Depozyty i inne zobowiązania bieżące',
-                            metrics: calculateMetrics(columns.deposits_current, latestDateObj),
-                            subcategories: [
-                                { id: 'households_current', name: 'Gospodarstwa domowe', metrics: calculateMetrics(columns.households_current, latestDateObj) },
-                                { id: 'other_fin_current', name: 'Pozostałe instytucje finansowe', metrics: calculateMetrics(columns.other_fin_current, latestDateObj) },
-                                { id: 'nonfin_current', name: 'Przedsiębiorstwa niefinansowe', metrics: calculateMetrics(columns.nonfin_current, latestDateObj) },
-                                { id: 'nonprofit_current', name: 'Instytucje niekomercyjne działające na rzecz gospodarstw domowych', metrics: calculateMetrics(columns.nonprofit_current, latestDateObj) },
-                                { id: 'localgov_current', name: 'Instytucje samorządowe', metrics: calculateMetrics(columns.localgov_current, latestDateObj) },
-                                { id: 'social_funds_current', name: 'Fundusze zabezpieczenia społecznego', metrics: calculateMetrics(columns.social_funds_current, latestDateObj) }
-                            ]
-                        }
-                    ]
-                });
-
-                // M2
-                const m2Metrics = calculateMetrics(columns.m2, latestDateObj);
-                tableData.push({
-                    id: 'm2',
-                    name: 'Pieniądz M2',
-                    category: 'm2',
-                    metrics: m2Metrics,
-                    subcategories: [
-                        { id: 'm1', name: 'Pieniądz M1', metrics: m1Metrics, reference: true },
-                        {
-                            id: 'deposits_2y',
-                            name: 'Depozyty i inne zobowiązania do 2 lat włącznie',
-                            metrics: calculateMetrics(columns.deposits_2y, latestDateObj),
-                            subcategories: [
-                                { id: 'households_2y', name: 'Gospodarstwa domowe', metrics: calculateMetrics(columns.households_2y, latestDateObj) },
-                                { id: 'other_fin_2y', name: 'Pozostałe instytucje finansowe', metrics: calculateMetrics(columns.other_fin_2y, latestDateObj) },
-                                { id: 'nonfin_2y', name: 'Przedsiębiorstwa niefinansowe', metrics: calculateMetrics(columns.nonfin_2y, latestDateObj) },
-                                { id: 'nonprofit_2y', name: 'Instytucje niekomercyjne działające na rzecz gospodarstw domowych', metrics: calculateMetrics(columns.nonprofit_2y, latestDateObj) },
-                                { id: 'localgov_2y', name: 'Instytucje samorządowe', metrics: calculateMetrics(columns.localgov_2y, latestDateObj) },
-                                { id: 'social_funds_2y', name: 'Fundusze zabezpieczenia społecznego', metrics: calculateMetrics(columns.social_funds_2y, latestDateObj) }
-                            ]
-                        }
-                    ]
-                });
-
-                // M3
-                const m3Metrics = calculateMetrics(columns.m3, latestDateObj);
-                tableData.push({
-                    id: 'm3',
-                    name: 'Pieniądz M3',
-                    category: 'm3',
-                    metrics: m3Metrics,
-                    subcategories: [
-                        { id: 'm2', name: 'Pieniądz M2', metrics: m2Metrics, reference: true },
-                        { id: 'repo_operations', name: 'Operacje z przyrzeczeniem odkupu', metrics: calculateMetrics(columns.repo_operations, latestDateObj) },
-                        { id: 'debt_securities_2y', name: 'Emisja dłużnych papierów wartościowych z terminem pierwotnym do 2 lat', metrics: calculateMetrics(columns.debt_securities_2y, latestDateObj) },
-                        { id: 'money_market_funds', name: 'Emisja udziałów/jednostek uczestnictwa w funduszach rynku pieniężnego', metrics: calculateMetrics(columns.money_market_funds, latestDateObj) }
-                    ]
-                });
-
-                // Funkcja formatowania wartości
-                const formatValue = (value, type = 'value') => {
-                    if (value === null) return '<span class="neutral">Brak danych</span>';
-                    if (type === 'value') return value.toFixed(2);
-                    if (type === 'share') return value.toFixed(2) + '%';
-                    if (type === 'change') {
-                        return `<span class="${value >= 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">${value >= 0 ? '+' : ''}${value.toFixed(2)}</span>`;
-                    }
-                    if (type === 'percent') {
-                        return `<span class="${value >= 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">${value >= 0 ? '+' : ''}${value.toFixed(2)}%</span>`;
-                    }
-                };
-
-                // Renderowanie tabeli
-                const tableBody = document.querySelector('#m3-table tbody');
-                const renderTable = (data) => {
-                    tableBody.innerHTML = '';
-                    
-                    // Funkcja do sortowania elementów według wartości
-                    const sortByValue = (items) => {
-                        return [...items].sort((a, b) => {
-                            if (a.metrics.value === null) return 1;
-                            if (b.metrics.value === null) return -1;
-                            return b.metrics.value - a.metrics.value;
-                        });
-                    };
-                    
-                    // Śledź wyrenderowane elementy, aby uniknąć duplikacji
-                    const renderedItems = {};
-                    
-                    // Główna funkcja renderująca wiersz tabeli
-                    const createRow = (item, level = 0, visible = true) => {
-                        if (renderedItems[item.id]) return; // Nie renderuj tego samego elementu dwa razy
-                        renderedItems[item.id] = true;
-                        
-                        const row = document.createElement('tr');
-                        
-                        // Dodaj klasy na podstawie poziomu i kategorii
-                        row.className = `${level === 0 ? 'category-row' : 'subcategory-row'} ${item.category}-row`;
-                        row.dataset.id = item.id;
-                        row.dataset.level = level;
-                        
-                        // Ukryj elementy, które nie powinny być widoczne
-                        if (!visible) {
-                            row.classList.add('hidden');
-                        }
-                        
-                        // Dodaj ikonę rozwijania (jeśli element ma dzieci)
-                        const hasToggle = item.subcategories && item.subcategories.length > 0 && !item.reference;
-                        const toggleIcon = hasToggle ? '<span class="toggle-icon">▶</span>' : '<span style="display:inline-block;width:20px;"></span>';
-                        
-                        row.innerHTML = `
-                            <td>${toggleIcon}${item.name}</td>
-                            <td>${formatValue(item.metrics.value)}</td>
-                            <td>${formatValue(item.metrics.share, 'share')}</td>
-                            <td>${formatValue(item.metrics.mmChange, 'change')}</td>
-                            <td>${formatValue(item.metrics.mmPercent, 'percent')}</td>
-                            <td>${formatValue(item.metrics.rrChange, 'change')}</td>
-                            <td>${formatValue(item.metrics.rrPercent, 'percent')}</td>
-                        `;
-                        
-                        tableBody.appendChild(row);
-                        
-                        // Dodaj obsługę kliknięcia (rozwijanie/zwijanie)
-                        if (hasToggle) {
-                            const icon = row.querySelector('.toggle-icon');
-                            icon.addEventListener('click', () => {
-                                // Przełącz stan ikony (obrót)
-                                const isExpanded = icon.classList.toggle('expanded');
-                                
-                                // Pokaż/ukryj bezpośrednie dzieci
-                                if (item.subcategories) {
-                                    item.subcategories.forEach(child => {
-                                        // Znajdź odpowiedni wiersz
-                                        const childRow = document.querySelector(`tr[data-id="${child.id}"]`);
-                                        if (childRow) {
-                                            // Pokaż/ukryj wiersz
-                                            childRow.classList.toggle('hidden', !isExpanded);
-                                            
-                                            // Jeśli zwijamy, zwinąć też wszystkie dzieci
-                                            if (!isExpanded) {
-                                                const childIcon = childRow.querySelector('.toggle-icon.expanded');
-                                                if (childIcon) {
-                                                    childIcon.click(); // Symuluj kliknięcie
-                                                }
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    };
-                    
-                    // Znjaa i posortuj elementy
-                    const m3Item = data.find(item => item.id === 'm3');
-                    if (!m3Item) return;
-                    
-                    // Posortuj subcategories wewnątrz M3 (ale nie zmieniaj kolejności dla M2 i M1)
-                    const m2Item = m3Item.subcategories.find(item => item.id === 'm2');
-                    
-                    // 1. Renderuj M3 (główna kategoria)
-                    createRow(m3Item, 0, true);
-                    
-                    // 2. Renderuj M2 (bezpośrednio pod M3) jako widoczne
-                    if (m2Item) {
-                        createRow(m2Item, 1, true);
-                        
-                        // 3. Znajdź M1 (wewnątrz M2)
-                        const m1Item = m2Item.subcategories.find(item => item.id === 'm1');
-                        if (m1Item) {
-                            // Renderuj M1 (pod M2) jako widoczne
-                            createRow(m1Item, 2, true);
-                            
-                            // Renderuj dzieci M1 (ukryte)
-                            if (m1Item.subcategories) {
-                                const sortedM1Children = sortByValue(m1Item.subcategories);
-                                sortedM1Children.forEach(child => {
-                                    createRow(child, 3, false);
-                                    
-                                    // Renderuj jeszcze głębsze dzieci (ukryte)
-                                    if (child.subcategories) {
-                                        sortByValue(child.subcategories).forEach(grandchild => {
-                                            createRow(grandchild, 4, false);
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                        
-                        // Renderuj pozostałe dzieci M2 (ukryte)
-                        if (m2Item.subcategories) {
-                            const otherM2Children = m2Item.subcategories.filter(item => item.id !== 'm1');
-                            const sortedM2Children = sortByValue(otherM2Children);
-                            sortedM2Children.forEach(child => {
-                                createRow(child, 2, false);
-                                
-                                // Renderuj dzieci tych elementów (ukryte)
-                                if (child.subcategories) {
-                                    sortByValue(child.subcategories).forEach(grandchild => {
-                                        createRow(grandchild, 3, false);
-                                    });
-                                }
-                            });
-                        }
-                    }
-                    
-                    // 4. Renderuj pozostałe elementy M3 (poza M2)
-                    const otherM3Items = m3Item.subcategories.filter(item => item.id !== 'm2');
-                    const sortedM3Items = sortByValue(otherM3Items);
-                    sortedM3Items.forEach(item => {
-                        createRow(item, 1, true);
-                        
-                        // Renderuj ich dzieci (ukryte)
-                        if (item.subcategories) {
-                            sortByValue(item.subcategories).forEach(child => {
-                                createRow(child, 2, false);
-                            });
-                        }
-                    });
-                };
-
-                // Wywołanie początkowe
-                renderTable(tableData);
 
                 // Oblicz zmiany dla wykresu zmian
                 const calculateChanges = (period, unit) => {
@@ -1413,9 +975,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     console.log('Zdarzenie selection wywołane', xaxis, yaxis);
                 });
             } catch (error) {
-                console.error('Szczegółowy błąd:', error);
-                console.error('Komunikat błędu:', error.message);
-                console.error('Stos wywołań:', error.stack);
+                console.error('Błąd:', error);
                 for (const key of ['m3', 'm2', 'm1']) {
                     document.getElementById(`${key}-value`).textContent = 'Błąd ładowania';
                     document.getElementById(`${key}-mm`).textContent = 'Błąd';
@@ -1427,7 +987,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 document.querySelector('#changes-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
                 document.querySelector('#brush-chart-values').innerHTML = '';
                 document.querySelector('#brush-chart-changes').innerHTML = '';
-                document.querySelector('#m3-table tbody').innerHTML = '<tr><td colspan="7">Błąd ładowania danych</td></tr>';
             }
         }
 
