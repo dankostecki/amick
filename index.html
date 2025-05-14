@@ -686,21 +686,12 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     
                     valuesChart.updateOptions({
                         chart: {
+                            type: 'area',
+                            stacked: false,
                             zoom: {
-                                enabled: true,
                                 type: 'x',
-                                autoScaleYaxis: true,
-                                zoomedArea: {
-                                    fill: {
-                                        color: '#90CAF9',
-                                        opacity: 0.4
-                                    },
-                                    stroke: {
-                                        color: '#0D47A1',
-                                        opacity: 0.4,
-                                        width: 1
-                                    }
-                                }
+                                enabled: true,
+                                autoScaleYaxis: true
                             },
                             toolbar: {
                                 show: true,
@@ -713,7 +704,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     pan: true,
                                     reset: true
                                 },
-                                autoSelected: 'selection'
+                                autoSelected: 'zoom'
                             }
                         },
                         tooltip: {
@@ -729,21 +720,12 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     
                     changesChart.updateOptions({
                         chart: {
+                            type: 'area',
+                            stacked: false,
                             zoom: {
-                                enabled: true,
                                 type: 'x',
-                                autoScaleYaxis: true,
-                                zoomedArea: {
-                                    fill: {
-                                        color: '#90CAF9',
-                                        opacity: 0.4
-                                    },
-                                    stroke: {
-                                        color: '#0D47A1',
-                                        opacity: 0.4,
-                                        width: 1
-                                    }
-                                }
+                                enabled: true,
+                                autoScaleYaxis: true
                             },
                             toolbar: {
                                 show: true,
@@ -756,7 +738,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     pan: true,
                                     reset: true
                                 },
-                                autoSelected: 'selection'
+                                autoSelected: 'zoom'
                             }
                         },
                         tooltip: {
@@ -833,6 +815,15 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 document.getElementById('unit-toggle').addEventListener('change', (e) => {
                     currentUnit = e.target.checked ? 'mld' : 'percent';
                     updateChangesChart();
+                });
+
+                // Debugowanie zdarzeń zooma i zaznaczania
+                valuesChart.addEventListener('zoomed', function(chartContext, { xaxis, yaxis }) {
+                    console.log('Zdarzenie zoom wywołane', xaxis, yaxis);
+                });
+
+                valuesChart.addEventListener('selection', function(chartContext, { xaxis, yaxis }) {
+                    console.log('Zdarzenie selection wywołane', xaxis, yaxis);
                 });
             } catch (error) {
                 console.error('Błąd:', error);
