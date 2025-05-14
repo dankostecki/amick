@@ -682,7 +682,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 let currentUnit = 'mld';
 
                 if (isMobileDevice()) {
-                    console.log("Wykryto urządzenie mobilne - włączanie trybu mobilnego");
+                    console.log("Wykryto urządzenie mobilne - włączanie trybu zoomable timeseries");
                     
                     valuesChart.updateOptions({
                         chart: {
@@ -707,13 +707,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                 tools: {
                                     download: false,
                                     selection: true,
-                                    zoom: false,
-                                    zoomin: true,
-                                    zoomout: true,
+                                    zoom: true,
+                                    zoomin: false,
+                                    zoomout: false,
                                     pan: true,
                                     reset: true
                                 },
-                                autoSelected: 'zoom'
+                                autoSelected: 'selection'
                             }
                         },
                         tooltip: {
@@ -750,13 +750,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                 tools: {
                                     download: false,
                                     selection: true,
-                                    zoom: false,
-                                    zoomin: true,
-                                    zoomout: true,
+                                    zoom: true,
+                                    zoomin: false,
+                                    zoomout: false,
                                     pan: true,
                                     reset: true
                                 },
-                                autoSelected: 'zoom'
+                                autoSelected: 'selection'
                             }
                         },
                         tooltip: {
