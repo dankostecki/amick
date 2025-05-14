@@ -621,6 +621,12 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                             size: 5
                         }
                     },
+                    tooltip: {
+                        x: { format: 'yyyy-MM-dd' },
+                        y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' },
+                        shared: true,
+                        intersect: false
+                    },
                     legend: { position: 'top' }
                 });
                 changesChart.render();
@@ -752,6 +758,26 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     pan: true,
                                     reset: true
                                 }
+                            },
+                            events: {
+                                beforeResetZoom: function(chartContext, opts) {
+                                    console.log('Przycisk reset - pokazywanie pełnej historii');
+                                    setTimeout(() => {
+                                        valuesChart.updateOptions({
+                                            xaxis: {
+                                                min: dates[0],
+                                                max: dates[dates.length - 1]
+                                            }
+                                        });
+                                        changesChart.updateOptions({
+                                            xaxis: {
+                                                min: dates[0],
+                                                max: dates[dates.length - 1]
+                                            }
+                                        });
+                                    }, 10);
+                                    return false;
+                                }
                             }
                         },
                         dataLabels: {
@@ -789,6 +815,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         tooltip: {
                             shared: true,
                             intersect: false,
+                            x: { format: 'yyyy-MM-dd' },
                             y: {
                                 formatter: function (val) {
                                     return val ? val.toFixed(2) + " mld PLN" : "Brak danych";
@@ -832,6 +859,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     zoomout: false,
                                     pan: true,
                                     reset: true
+                                }
+                            },
+                            events: {
+                                beforeResetZoom: function(chartContext, opts) {
+                                    return false; // Wykres wartości już obsłuży resetowanie obu wykresów
                                 }
                             }
                         },
@@ -898,6 +930,30 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         valuesChart.updateOptions({ xaxis: { min: minDate, max: maxDate } });
                         changesChart.updateOptions({ xaxis: { min: minDate, max: maxDate } });
                     }
+                    
+                    // Nasłuchiwanie kliknięcia przycisku reset
+                    setTimeout(() => {
+                        const resetButtons = document.querySelectorAll('.apexcharts-reset-icon');
+                        resetButtons.forEach(button => {
+                            button.addEventListener('click', function(e) {
+                                console.log('Przycisk reset kliknięty ręcznie');
+                                setTimeout(() => {
+                                    valuesChart.updateOptions({
+                                        xaxis: {
+                                            min: dates[0],
+                                            max: dates[dates.length - 1]
+                                        }
+                                    });
+                                    changesChart.updateOptions({
+                                        xaxis: {
+                                            min: dates[0],
+                                            max: dates[dates.length - 1]
+                                        }
+                                    });
+                                }, 50);
+                            });
+                        });
+                    }, 500);
                 }
 
                 document.getElementById('period-toggle').addEventListener('change', (e) => {
