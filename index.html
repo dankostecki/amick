@@ -569,7 +569,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     }
                 };
 
-                const valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
+                let valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
                 valuesChart.render();
 
                 // Warunkowa inicjalizacja wykresów brush
@@ -625,6 +625,41 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 });
                 changesChart.render();
 
+                let currentPeriod = 'rr';
+                let currentUnit = 'mld';
+
+                // Definicja updateChangesChart przed użyciem
+                const updateChangesChart = () => {
+                    if (!changesChart) return;
+                    
+                    const changes = calculateChanges(currentPeriod, currentUnit);
+                    changesChart.updateSeries([
+                        { name: 'M3', data: changes.m3, color: '#9f7aea' },
+                        { name: 'M2', data: changes.m2, color: '#4299e1' },
+                        { name: 'M1', data: changes.m1, color: '#48bb78' }
+                    ]);
+                    changesChart.updateOptions({
+                        yaxis: {
+                            title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
+                            labels: { formatter: val => val ? val.toFixed(2) : '' },
+                            forceNiceScale: true
+                        },
+                        tooltip: {
+                            x: { format: 'yyyy-MM-dd' },
+                            y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' },
+                            shared: true,
+                            intersect: false
+                        }
+                    });
+                    if (changesBrushChart) {
+                        changesBrushChart.updateSeries([
+                            { name: 'M3', data: changes.m3, color: '#9f7aea' },
+                            { name: 'M2', data: changes.m2, color: '#4299e1' },
+                            { name: 'M1', data: changes.m1, color: '#48bb78' }
+                        ]);
+                    }
+                };
+
                 if (!isMobileDevice()) {
                     valuesBrushChart = new ApexCharts(document.querySelector('#brush-chart-values'), valuesBrushOptions);
                     valuesBrushChart.render();
@@ -673,28 +708,41 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         }
                     });
                     changesBrushChart.render();
+                    updateChangesChart();
                 } else {
+                    console.log("Wykryto urządzenie mobilne - tworzenie nowych wykresów z konfiguracją zoomable timeseries");
+                    
+                    // Ukryj elementy brush chart
                     document.getElementById('brush-chart-values').style.display = 'none';
                     document.getElementById('brush-chart-changes').style.display = 'none';
-                }
-
-                let currentPeriod = 'rr';
-                let currentUnit = 'mld';
-
-                if (isMobileDevice()) {
-                    console.log("Wykryto urządzenie mobilne - włączanie trybu zoomable timeseries");
                     
-                    valuesChart.updateOptions({
+                    // Zniszcz istniejące wykresy
+                    valuesChart.destroy();
+                    changesChart.destroy();
+                    
+                    // Konfiguracja dla wykresu wartości
+                    const mobileValuesOptions = {
+                        series: [
+                            { name: 'M3', data: valuesData.m3, color: '#9f7aea' },
+                            { name: 'M2', data: valuesData.m2, color: '#4299e1' },
+                            { name: 'M1', data: valuesData.m1, color: '#48bb78' }
+                        ],
                         chart: {
                             type: 'area',
                             stacked: false,
+                            height: 400,
+                            fontFamily: 'Poppins, sans-serif',
                             zoom: {
                                 type: 'x',
                                 enabled: true,
-                                autoScaleYaxis: true
+                                autoScaleYaxis: true,
+                                zoomedArea: {
+                                    fill: { color: '#90CAF9', opacity: 0.4 },
+                                    stroke: { color: '#0D47A1', opacity: 0.4, width: 1 }
+                                }
                             },
                             toolbar: {
-                                show: true,
+                                autoSelected: 'zoom',
                                 tools: {
                                     download: false,
                                     selection: true,
@@ -703,9 +751,40 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     zoomout: false,
                                     pan: true,
                                     reset: true
-                                },
-                                autoSelected: 'zoom'
+                                }
                             }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        markers: {
+                            size: 0,
+                            hover: {
+                                size: 5
+                            }
+                        },
+                        stroke: {
+                            curve: 'smooth',
+                            width: 2
+                        },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shadeIntensity: 1,
+                                opacityFrom: 0.7,
+                                opacityTo: 0.2,
+                                stops: [0, 90, 100]
+                            }
+                        },
+                        xaxis: {
+                            type: 'datetime',
+                            categories: dates,
+                            labels: { format: 'yyyy-MM' }
+                        },
+                        yaxis: {
+                            title: { text: 'Wartość (mld PLN)' },
+                            labels: { formatter: val => val.toFixed(2) },
+                            forceNiceScale: true
                         },
                         tooltip: {
                             shared: true,
@@ -715,20 +794,36 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     return val ? val.toFixed(2) + " mld PLN" : "Brak danych";
                                 }
                             }
+                        },
+                        legend: {
+                            position: 'top',
+                            horizontalAlign: 'center'
                         }
-                    });
+                    };
                     
-                    changesChart.updateOptions({
+                    // Utworzenie nowego wykresu wartości
+                    valuesChart = new ApexCharts(document.querySelector('#values-chart'), mobileValuesOptions);
+                    valuesChart.render();
+                    
+                    // Konfiguracja dla wykresu zmian
+                    const mobileChangesOptions = {
+                        series: [],
                         chart: {
                             type: 'area',
                             stacked: false,
+                            height: 400,
+                            fontFamily: 'Poppins, sans-serif',
                             zoom: {
                                 type: 'x',
                                 enabled: true,
-                                autoScaleYaxis: true
+                                autoScaleYaxis: true,
+                                zoomedArea: {
+                                    fill: { color: '#90CAF9', opacity: 0.4 },
+                                    stroke: { color: '#0D47A1', opacity: 0.4, width: 1 }
+                                }
                             },
                             toolbar: {
-                                show: true,
+                                autoSelected: 'zoom',
                                 tools: {
                                     download: false,
                                     selection: true,
@@ -737,9 +832,40 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     zoomout: false,
                                     pan: true,
                                     reset: true
-                                },
-                                autoSelected: 'zoom'
+                                }
                             }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        markers: {
+                            size: 0,
+                            hover: {
+                                size: 5
+                            }
+                        },
+                        stroke: {
+                            curve: 'smooth',
+                            width: 2
+                        },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shadeIntensity: 1,
+                                opacityFrom: 0.5,
+                                opacityTo: 0.1,
+                                stops: [0, 90, 100]
+                            }
+                        },
+                        xaxis: {
+                            type: 'datetime',
+                            categories: dates,
+                            labels: { format: 'yyyy-MM' }
+                        },
+                        yaxis: {
+                            title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
+                            labels: { formatter: val => val ? val.toFixed(2) : '' },
+                            forceNiceScale: true
                         },
                         tooltip: {
                             shared: true,
@@ -750,62 +876,29 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     return val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych';
                                 }
                             }
+                        },
+                        legend: {
+                            position: 'top',
+                            horizontalAlign: 'center'
                         }
-                    });
+                    };
                     
-                    const defaultMonths = Math.min(120, dates.length - 1);
+                    // Utworzenie nowego wykresu zmian
+                    changesChart = new ApexCharts(document.querySelector('#changes-chart'), mobileChangesOptions);
+                    changesChart.render();
+                    
+                    // Dodanie początkowych danych do wykresu zmian
+                    updateChangesChart();
+                    
+                    // Ustaw domyślny zakres 5 lat
+                    const defaultMonths = Math.min(60, dates.length - 1);
                     if (defaultMonths > 0) {
                         const minDate = dates[dates.length - defaultMonths - 1];
                         const maxDate = dates[dates.length - 1];
-                        
-                        console.log("Ustawiam zakres dat:", new Date(minDate).toISOString(), "do", new Date(maxDate).toISOString());
-                        
-                        valuesChart.updateOptions({
-                            xaxis: {
-                                min: minDate,
-                                max: maxDate
-                            }
-                        });
-                        
-                        changesChart.updateOptions({
-                            xaxis: {
-                                min: minDate,
-                                max: maxDate
-                            }
-                        });
+                        valuesChart.updateOptions({ xaxis: { min: minDate, max: maxDate } });
+                        changesChart.updateOptions({ xaxis: { min: minDate, max: maxDate } });
                     }
                 }
-
-                const updateChangesChart = () => {
-                    const changes = calculateChanges(currentPeriod, currentUnit);
-                    changesChart.updateSeries([
-                        { name: 'M3', data: changes.m3, color: '#9f7aea' },
-                        { name: 'M2', data: changes.m2, color: '#4299e1' },
-                        { name: 'M1', data: changes.m1, color: '#48bb78' }
-                    ]);
-                    changesChart.updateOptions({
-                        yaxis: {
-                            title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
-                            labels: { formatter: val => val ? val.toFixed(2) : '' },
-                            forceNiceScale: true
-                        },
-                        tooltip: {
-                            x: { format: 'yyyy-MM-dd' },
-                            y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' },
-                            shared: true,
-                            intersect: false
-                        }
-                    });
-                    if (changesBrushChart) {
-                        changesBrushChart.updateSeries([
-                            { name: 'M3', data: changes.m3, color: '#9f7aea' },
-                            { name: 'M2', data: changes.m2, color: '#4299e1' },
-                            { name: 'M1', data: changes.m1, color: '#48bb78' }
-                        ]);
-                    }
-                };
-
-                updateChangesChart();
 
                 document.getElementById('period-toggle').addEventListener('change', (e) => {
                     currentPeriod = e.target.checked ? 'rr' : 'mm';
