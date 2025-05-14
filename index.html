@@ -210,9 +210,10 @@
         @media (max-width: 768px) {
             .apexcharts-zoom-icon,
             .apexcharts-selection-icon,
+            .apexcharts-pan-icon,
             .apexcharts-reset-icon {
                 transform: scale(1.5);
-                margin: 0 5px;
+                margin: 0 8px;
             }
             #brush-chart-values, #brush-chart-changes {
                 height: 160px !important;
@@ -353,14 +354,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
                     const prevMonthDate = new Date(latestDate);
                     prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-                    const prevMonthStr = prevMonthDate.toISOString().slice(0, 10);
-                    const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthStr.slice(0, 7));
+                    const prevMonthYearMonth = prevMonthDate.toISOString().slice(0, 7);
+                    const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthYearMonth);
                     const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
 
                     const prevYearDate = new Date(latestDate);
                     prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
-                    const prevYearStr = prevYearDate.toISOString().slice(0, 10);
-                    const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearStr.slice(0, 7));
+                    const prevYearYearMonth = prevYearDate.toISOString().slice(0, 7);
+                    const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearYearMonth);
                     const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
 
                     let mmChange = null, mmPercent = null, rrChange = null, rrPercent = null;
@@ -387,7 +388,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 }
 
                 // Przetwarzanie danych dla wykresów
-                const dates = columns.m3 ? columns.m3.data.map(d => d.date) : [];
+                const dates = columns.m3 ? columns.m3.data.map(d => {
+                    const [year, month, day] = d.date.split("-").map(Number);
+                    return Date.UTC(year, month - 1, day);
+                }) : [];
                 const valuesData = {
                     m3: columns.m3 ? columns.m3.data.map(d => d.value / 1000) : [],
                     m2: columns.m2 ? columns.m2.data.map(d => d.value / 1000) : [],
@@ -404,20 +408,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         }
                         const data = columns[key].data;
                         for (let i = 0; i < data.length; i++) {
-                            const currentDate = new Date(data[i].date);
+                            const [year, month, day] = data[i].date.split("-").map(Number);
+                            const currentDate = new Date(Date.UTC(year, month - 1, day));
                             const currentValue = data[i].value / 1000;
                             let prevValue = null;
                             if (period === 'rr') {
                                 const prevYearDate = new Date(currentDate);
                                 prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
-                                const prevYearStr = prevYearDate.toISOString().slice(0, 10);
-                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevYearStr.slice(0, 7));
+                                const prevYearMonth = `${prevYearDate.getUTCFullYear()}-${String(prevYearDate.getUTCMonth() + 1).padStart(2, '0')}`;
+                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevYearMonth);
                                 prevValue = prevEntry ? prevEntry.value / 1000 : null;
                             } else {
                                 const prevMonthDate = new Date(currentDate);
                                 prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-                                const prevMonthStr = prevMonthDate.toISOString().slice(0, 10);
-                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthStr.slice(0, 7));
+                                const prevMonthMonth = `${prevMonthDate.getUTCFullYear()}-${String(prevMonthDate.getUTCMonth() + 1).padStart(2, '0')}`;
+                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthMonth);
                                 prevValue = prevEntry ? prevEntry.value / 1000 : null;
                             }
                             if (prevValue !== null) {
@@ -515,8 +520,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         selection: {
                             enabled: true,
                             xaxis: {
-                                min: dates.length > 120 ? new Date(dates[dates.length - 120]).getTime() : new Date(dates[0]).getTime(),
-                                max: new Date(dates[dates.length - 1]).getTime()
+                                min: dates.length > 120 ? dates[dates.length - 120] : dates[0],
+                                max: dates[dates.length - 1]
                             }
                         }
                     },
@@ -624,8 +629,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         selection: {
                             enabled: true,
                             xaxis: {
-                                min: dates.length > 120 ? new Date(dates[dates.length - 120]).getTime() : new Date(dates[0]).getTime(),
-                                max: new Date(dates[dates.length - 1]).getTime()
+                                min: dates.length > 120 ? dates[dates.length - 120] : dates[0],
+                                max: dates[dates.length - 1]
                             }
                         }
                     },
@@ -661,16 +666,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
                 // Obsługa urządzeń mobilnych
                 if (isMobileDevice()) {
-                    // Ukryj brush chart dla urządzeń mobilnych
                     document.getElementById('brush-chart-values').style.display = 'none';
                     document.getElementById('brush-chart-changes').style.display = 'none';
                     
-                    // Włącz tylko potrzebne narzędzia dla urządzeń mobilnych
                     valuesChart.updateOptions({
                         chart: {
                             zoom: {
                                 enabled: true,
-                                type: 'xy'
+                                type: 'x'
                             },
                             toolbar: {
                                 show: true,
@@ -692,7 +695,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         chart: {
                             zoom: {
                                 enabled: true,
-                                type: 'xy'
+                                type: 'x'
                             },
                             toolbar: {
                                 show: true,
@@ -710,10 +713,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         }
                     });
                     
-                    // Ustaw domyślny zakres na 10 lat
                     if (dates.length > 120) {
-                        const minDate = new Date(dates[dates.length - 120]).getTime();
-                        const maxDate = new Date(dates[dates.length - 1]).getTime();
+                        const minDate = dates[dates.length - 120];
+                        const maxDate = dates[dates.length - 1];
                         
                         valuesChart.updateOptions({
                             xaxis: {
