@@ -238,6 +238,9 @@
                 align-items: center;
             }
         }
+        .toggle-switch input:focus + .toggle-slider {
+            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -327,8 +330,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
         async function loadData() {
             try {
                 const response = await fetch('am_data.json');
-                if (!response.ok) throw new Error('Nie udało się załadować pliku JSON');
+                if (!response.ok) {
+                    throw new Error(`Problem z pobieraniem danych: ${response.status} ${response.statusText}`);
+                }
                 const jsonData = await response.json();
+                
+                if (!jsonData.columns || !Array.isArray(jsonData.columns)) {
+                    throw new Error('Nieprawidłowa struktura danych JSON: brak tablicy columns');
+                }
 
                 const columns = {
                     m3: jsonData.columns.find(col => col.column_id === 23),
@@ -350,15 +359,17 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                     const data = column.data;
                     const latest = data[data.length - 1];
                     const latestValue = latest.value / 1000;
-                    const latestDate = new Date(latest.date);
+                    const latestDateObj = new Date(latest.date);
+                    const latestMonth = latestDateObj.getMonth();
+                    const latestYear = latestDateObj.getFullYear();
 
-                    const prevMonthDate = new Date(latestDate);
-                    prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-                    const prevMonthYearMonth = prevMonthDate.toISOString().slice(0, 7);
+                    const prevMonth = latestMonth === 0 ? 11 : latestMonth - 1;
+                    const prevYear = latestMonth === 0 ? latestYear - 1 : latestYear;
+                    const prevMonthYearMonth = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
                     const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthYearMonth);
                     const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
 
-                    const prevYearDate = new Date(latestDate);
+                    const prevYearDate = new Date(latestDateObj);
                     prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
                     const prevYearYearMonth = prevYearDate.toISOString().slice(0, 7);
                     const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearYearMonth);
@@ -419,9 +430,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                 const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevYearMonth);
                                 prevValue = prevEntry ? prevEntry.value / 1000 : null;
                             } else {
-                                const prevMonthDate = new Date(currentDate);
-                                prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-                                const prevMonthMonth = `${prevMonthDate.getUTCFullYear()}-${String(prevMonthDate.getUTCMonth() + 1).padStart(2, '0')}`;
+                                const currentMonth = currentDate.getUTCMonth();
+                                const currentYear = currentDate.getUTCFullYear();
+                                const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                                const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                                const prevMonthMonth = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
                                 const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthMonth);
                                 prevValue = prevEntry ? prevEntry.value / 1000 : null;
                             }
@@ -559,13 +572,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 const valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
                 valuesChart.render();
 
-                const valuesBrushChart = new ApexCharts(document.querySelector('#brush-chart-values'), valuesBrushOptions);
-                valuesBrushChart.render();
-
-                // Wykres zmian
-                let currentPeriod = 'rr';
-                let currentUnit = 'mld';
-
+                // Warunkowa inicjalizacja wykresów brush
+                let valuesBrushChart, changesBrushChart;
                 let changesChart = new ApexCharts(document.querySelector('#changes-chart'), {
                     chart: {
                         id: 'changesChart',
@@ -617,63 +625,82 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 });
                 changesChart.render();
 
-                const changesBrushOptions = {
-                    chart: {
-                        id: 'brushChartChanges',
-                        height: 130,
-                        type: 'area',
-                        brush: {
-                            enabled: true,
-                            target: 'changesChart'
-                        },
-                        selection: {
-                            enabled: true,
-                            xaxis: {
-                                min: dates.length > 120 ? dates[dates.length - 120] : dates[0],
-                                max: dates[dates.length - 1]
+                if (!isMobileDevice()) {
+                    valuesBrushChart = new ApexCharts(document.querySelector('#brush-chart-values'), valuesBrushOptions);
+                    valuesBrushChart.render();
+                    
+                    changesBrushChart = new ApexCharts(document.querySelector('#brush-chart-changes'), {
+                        chart: {
+                            id: 'brushChartChanges',
+                            height: 130,
+                            type: 'area',
+                            brush: {
+                                enabled: true,
+                                target: 'changesChart'
+                            },
+                            selection: {
+                                enabled: true,
+                                xaxis: {
+                                    min: dates.length > 120 ? dates[dates.length - 120] : dates[0],
+                                    max: dates[dates.length - 1]
+                                }
                             }
-                        }
-                    },
-                    colors: ['#9f7aea', '#4299e1', '#48bb78'],
-                    series: [],
-                    xaxis: {
-                        type: 'datetime',
-                        categories: dates,
-                        labels: { format: 'yyyy-MM' },
-                        tooltip: {
-                            enabled: false
-                        }
-                    },
-                    yaxis: {
-                        tickAmount: 2,
-                        labels: {
+                        },
+                        colors: ['#9f7aea', '#4299e1', '#48bb78'],
+                        series: [],
+                        xaxis: {
+                            type: 'datetime',
+                            categories: dates,
+                            labels: { format: 'yyyy-MM' },
+                            tooltip: {
+                                enabled: false
+                            }
+                        },
+                        yaxis: {
+                            tickAmount: 2,
+                            labels: {
+                                show: false
+                            }
+                        },
+                        legend: {
                             show: false
+                        },
+                        fill: {
+                            opacity: 0.1
+                        },
+                        stroke: {
+                            width: 1
                         }
-                    },
-                    legend: {
-                        show: false
-                    },
-                    fill: {
-                        opacity: 0.1
-                    },
-                    stroke: {
-                        width: 1
-                    }
-                };
-
-                const changesBrushChart = new ApexCharts(document.querySelector('#brush-chart-changes'), changesBrushOptions);
-                changesBrushChart.render();
-
-                // Obsługa urządzeń mobilnych
-                if (isMobileDevice()) {
+                    });
+                    changesBrushChart.render();
+                } else {
                     document.getElementById('brush-chart-values').style.display = 'none';
                     document.getElementById('brush-chart-changes').style.display = 'none';
+                }
+
+                let currentPeriod = 'rr';
+                let currentUnit = 'mld';
+
+                if (isMobileDevice()) {
+                    console.log("Wykryto urządzenie mobilne - włączanie trybu mobilnego");
                     
                     valuesChart.updateOptions({
                         chart: {
                             zoom: {
                                 enabled: true,
-                                type: 'x'
+                                type: 'x',
+                                autoScaleYaxis: true,
+                                zoomedArea: {
+                                    fill: {
+                                        color: '#90CAF9',
+                                        opacity: 0.4
+                                    },
+                                    stroke: {
+                                        color: '#0D47A1',
+                                        opacity: 0.4,
+                                        width: 1
+                                    }
+                                }
                             },
                             toolbar: {
                                 show: true,
@@ -681,12 +708,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     download: false,
                                     selection: true,
                                     zoom: false,
-                                    zoomin: false,
-                                    zoomout: false,
+                                    zoomin: true,
+                                    zoomout: true,
                                     pan: true,
                                     reset: true
                                 },
-                                autoSelected: 'pan'
+                                autoSelected: 'zoom'
+                            }
+                        },
+                        tooltip: {
+                            shared: true,
+                            intersect: false,
+                            y: {
+                                formatter: function (val) {
+                                    return val ? val.toFixed(2) + " mld PLN" : "Brak danych";
+                                }
                             }
                         }
                     });
@@ -695,7 +731,19 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         chart: {
                             zoom: {
                                 enabled: true,
-                                type: 'x'
+                                type: 'x',
+                                autoScaleYaxis: true,
+                                zoomedArea: {
+                                    fill: {
+                                        color: '#90CAF9',
+                                        opacity: 0.4
+                                    },
+                                    stroke: {
+                                        color: '#0D47A1',
+                                        opacity: 0.4,
+                                        width: 1
+                                    }
+                                }
                             },
                             toolbar: {
                                 show: true,
@@ -703,19 +751,32 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                                     download: false,
                                     selection: true,
                                     zoom: false,
-                                    zoomin: false,
-                                    zoomout: false,
+                                    zoomin: true,
+                                    zoomout: true,
                                     pan: true,
                                     reset: true
                                 },
-                                autoSelected: 'pan'
+                                autoSelected: 'zoom'
+                            }
+                        },
+                        tooltip: {
+                            shared: true,
+                            intersect: false,
+                            x: { format: 'yyyy-MM-dd' },
+                            y: {
+                                formatter: function (val) {
+                                    return val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych';
+                                }
                             }
                         }
                     });
                     
-                    if (dates.length > 120) {
-                        const minDate = dates[dates.length - 120];
+                    const defaultMonths = Math.min(120, dates.length - 1);
+                    if (defaultMonths > 0) {
+                        const minDate = dates[dates.length - defaultMonths - 1];
                         const maxDate = dates[dates.length - 1];
+                        
+                        console.log("Ustawiam zakres dat:", new Date(minDate).toISOString(), "do", new Date(maxDate).toISOString());
                         
                         valuesChart.updateOptions({
                             xaxis: {
@@ -753,11 +814,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                             intersect: false
                         }
                     });
-                    changesBrushChart.updateSeries([
-                        { name: 'M3', data: changes.m3, color: '#9f7aea' },
-                        { name: 'M2', data: changes.m2, color: '#4299e1' },
-                        { name: 'M1', data: changes.m1, color: '#48bb78' }
-                    ]);
+                    if (changesBrushChart) {
+                        changesBrushChart.updateSeries([
+                            { name: 'M3', data: changes.m3, color: '#9f7aea' },
+                            { name: 'M2', data: changes.m2, color: '#4299e1' },
+                            { name: 'M1', data: changes.m1, color: '#48bb78' }
+                        ]);
+                    }
                 };
 
                 updateChangesChart();
