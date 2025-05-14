@@ -224,6 +224,32 @@
                 transform: translate(-50%, -50%);
             }
         }
+        .time-range-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .time-range-buttons button {
+            padding: 8px 12px;
+            background-color: #f0f5fa;
+            border: 1px solid #d1d9e2;
+            border-radius: 10px;
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .time-range-buttons button:hover {
+            background-color: #e0ebf5;
+        }
+        .time-range-buttons button.active {
+            background-color: #4299e1;
+            color: white;
+            border-color: #3182ce;
+        }
         @media (max-width: 768px) {
             .columns, .chart-columns {
                 flex-direction: column;
@@ -320,6 +346,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
         </section>
     </div>
     <script>
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
+
         async function loadData() {
             try {
                 const response = await fetch('am_data.json');
@@ -655,6 +685,104 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
 
                 const changesBrushChart = new ApexCharts(document.querySelector('#brush-chart-changes'), changesBrushOptions);
                 changesBrushChart.render();
+
+                // Obsługa przycisków zakresu czasowego na urządzeniach mobilnych
+                if (isMobileDevice()) {
+                    document.getElementById('brush-chart-values').style.display = 'none';
+                    document.getElementById('brush-chart-changes').style.display = 'none';
+                    
+                    const timeRanges = [
+                        { label: '1 rok', value: 12 },
+                        { label: '3 lata', value: 36 },
+                        { label: '5 lat', value: 60 },
+                        { label: '10 lat', value: 120 },
+                        { label: 'wszystkie', value: 'all' }
+                    ];
+                    
+                    const valuesButtonsContainer = document.createElement('div');
+                    valuesButtonsContainer.className = 'time-range-buttons';
+                    
+                    timeRanges.forEach(range => {
+                        const button = document.createElement('button');
+                        button.textContent = range.label;
+                        button.dataset.range = range.value;
+                        if (range.value === 120) button.classList.add('active');
+                        
+                        button.addEventListener('click', () => {
+                            valuesButtonsContainer.querySelectorAll('button').forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+                            
+                            button.classList.add('active');
+                            
+                            const rangeValue = button.dataset.range;
+                            let minDate;
+                            
+                            if (rangeValue === 'all') {
+                                minDate = new Date(dates[0]).getTime();
+                            } else {
+                                const months = parseInt(rangeValue);
+                                const startIdx = Math.max(0, dates.length - months);
+                                minDate = new Date(dates[startIdx]).getTime();
+                            }
+                            
+                            const maxDate = new Date(dates[dates.length - 1]).getTime();
+                            
+                            valuesChart.updateOptions({
+                                xaxis: {
+                                    min: minDate,
+                                    max: maxDate
+                                }
+                            });
+                        });
+                        
+                        valuesButtonsContainer.appendChild(button);
+                    });
+                    
+                    document.getElementById('values-chart').before(valuesButtonsContainer);
+                    
+                    const changesButtonsContainer = document.createElement('div');
+                    changesButtonsContainer.className = 'time-range-buttons';
+                    
+                    timeRanges.forEach(range => {
+                        const button = document.createElement('button');
+                        button.textContent = range.label;
+                        button.dataset.range = range.value;
+                        if (range.value === 120) button.classList.add('active');
+                        
+                        button.addEventListener('click', () => {
+                            changesButtonsContainer.querySelectorAll('button').forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+                            
+                            button.classList.add('active');
+                            
+                            const rangeValue = button.dataset.range;
+                            let minDate;
+                            
+                            if (rangeValue === 'all') {
+                                minDate = new Date(dates[0]).getTime();
+                            } else {
+                                const months = parseInt(rangeValue);
+                                const startIdx = Math.max(0, dates.length - months);
+                                minDate = new Date(dates[startIdx]).getTime();
+                            }
+                            
+                            const maxDate = new Date(dates[dates.length - 1]).getTime();
+                            
+                            changesChart.updateOptions({
+                                xaxis: {
+                                    min: minDate,
+                                    max: maxDate
+                                }
+                            });
+                        });
+                        
+                        changesButtonsContainer.appendChild(button);
+                    });
+                    
+                    document.getElementById('changes-chart').before(changesButtonsContainer);
+                }
 
                 const updateChangesChart = () => {
                     const changes = calculateChanges(currentPeriod, currentUnit);
