@@ -241,149 +241,51 @@
         .toggle-switch input:focus + .toggle-slider {
             box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
         }
-
-        /* Style dla sekcji tabeli */
-        .table-section {
+        /* Tree-table styles */
+        .tree-table-section {
             margin-top: 60px;
         }
-
-        .table-container {
-            background: #ffffff;
+        .tree-table-container {
+            background: #fff;
             border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            padding: 24px;
             overflow-x: auto;
         }
-
-        #money-supply-table {
+        .tree-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
-
-        #money-supply-table th {
-            background: linear-gradient(135deg, #1a3c5e, #2c5282);
-            color: white;
+        .tree-table th {
+            background: linear-gradient(135deg, #1a3c5e, #4299e1);
+            color: #fff;
             padding: 12px 15px;
             text-align: left;
             font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
-
-        #money-supply-table th:first-child {
-            border-top-left-radius: 10px;
-        }
-
-        #money-supply-table th:last-child {
-            border-top-right-radius: 10px;
-        }
-
-        #money-supply-table td {
+        .tree-table td {
             padding: 10px 15px;
             border-bottom: 1px solid #e2e8f0;
-            transition: background-color 0.2s;
+            vertical-align: top;
         }
-
-        #money-supply-table tr:hover td {
-            background-color: #f8fafc;
-        }
-
-        #money-supply-table tr.level-0 {
-            font-weight: 700;
-            background-color: #f0f4f8;
-        }
-
-        #money-supply-table tr.level-1 {
-            font-weight: 600;
-        }
-
-        #money-supply-table tr.level-2 {
-            font-weight: 500;
-        }
-
-        #money-supply-table tr.level-3,
-        #money-supply-table tr.level-4 {
-            font-weight: 400;
-        }
-
-        .toggle-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0 5px;
-            font-size: 14px;
-            color: #4299e1;
-            margin-right: 5px;
-        }
-
-        .toggle-btn:hover {
-            color: #2b6cb0;
-        }
-
-        .toggle-btn:focus {
-            outline: none;
-        }
-
-        .indented {
-            padding-left: 20px;
-        }
-
-        .double-indented {
-            padding-left: 40px;
-        }
-
-        .triple-indented {
-            padding-left: 60px;
-        }
-
-        .quad-indented {
-            padding-left: 80px;
-        }
-
-        .positive-value {
-            color: #28a745;
-        }
-
-        .negative-value {
-            color: #dc3545;
-        }
-
-        .hidden-row {
-            display: none;
-        }
-
-        @media (max-width: 1200px) {
-            #money-supply-table {
-                font-size: 0.8rem;
-            }
-            
-            #money-supply-table th,
-            #money-supply-table td {
-                padding: 8px 10px;
-            }
-        }
-
+        .tree-indent-0 { padding-left: 0; }
+        .tree-indent-1 { padding-left: 20px; }
+        .tree-indent-2 { padding-left: 40px; }
+        .tree-indent-3 { padding-left: 60px; }
+        .tree-indent-4 { padding-left: 80px; }
+        .positive-value { color: #28a745; font-weight: 600; }
+        .negative-value { color: #dc3545; font-weight: 600; }
         @media (max-width: 768px) {
-            .table-container {
-                padding: 10px;
-            }
-            
-            #money-supply-table {
-                font-size: 0.7rem;
-            }
-            
-            #money-supply-table th,
-            #money-supply-table td {
-                padding: 6px 8px;
-            }
+            .tree-table { font-size: 0.85rem; }
+            .tree-table-container { padding: 10px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Podaż Pieniądza w Polsce</h1>
+        <!-- Karty agregatów -->
         <div class="columns">
             <div class="column-container">
                 <div class="column m3-column">
@@ -428,6 +330,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 </div>
             </div>
         </div>
+        <!-- Wykresy agregatów -->
         <section class="charts-section">
             <h2>Wykres skumulowany</h2>
             <div class="chart-columns">
@@ -459,84 +362,69 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                 </div>
             </div>
         </section>
-
-        <!-- Nowa sekcja tabeli -->
-        <section class="table-section">
-            <h2>Struktura Agregatów Pieniężnych</h2>
-            <div class="table-container">
-                <table id="money-supply-table">
+        <!-- NOWA SEKCJA: Tabela drzewkowa -->
+        <section class="tree-table-section">
+            <h2>Struktura Agregatów Pieniężnych (drzewko)</h2>
+            <div class="tree-table-container">
+                <table class="tree-table">
                     <thead>
                         <tr>
-                            <th>Składnik M3</th>
-                            <th>Wartość nominalna (mld PLN)</th>
-                            <th>Udział (%)</th>
-                            <th>Zmiana m/m (mld PLN)</th>
-                            <th>Zmiana m/m (%)</th>
-                            <th>Zmiana r/r (mld PLN)</th>
+                            <th>Agregaty pieniężne</th>
+                            <th>Wartość (mld PLN)</th>
+                            <th>Zmiana r/r (mld)</th>
+                            <th>Zmiana m/m (mld)</th>
                             <th>Zmiana r/r (%)</th>
+                            <th>Zmiana m/m (%)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Dane zostaną dodane przez JavaScript -->
+                    <tbody id="tree-table-body">
+                        <!-- Wiersze będą wygenerowane przez JS -->
                     </tbody>
                 </table>
             </div>
         </section>
     </div>
-
     <script>
+        // ...Wszystkie wcześniejsze funkcje do kart i wykresów, w uproszczeniu:
         function isMobileDevice() {
             return window.innerWidth <= 768;
         }
-
         async function loadData() {
             try {
                 const response = await fetch('am_data.json');
-                if (!response.ok) {
-                    throw new Error(`Problem z pobieraniem danych: ${response.status} ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error('Błąd pobierania danych');
                 const jsonData = await response.json();
-                
-                if (!jsonData.columns || !Array.isArray(jsonData.columns)) {
-                    throw new Error('Nieprawidłowa struktura danych JSON: brak tablicy columns');
-                }
-
+                if (!jsonData.columns || !Array.isArray(jsonData.columns)) throw new Error('Błąd struktury JSON');
                 const columns = {
                     m3: jsonData.columns.find(col => col.column_id === 23),
                     m2: jsonData.columns.find(col => col.column_id === 19),
                     m1: jsonData.columns.find(col => col.column_id === 11)
                 };
-
-                // Przetwarzanie danych dla ramek
                 for (const [key, column] of Object.entries(columns)) {
                     if (!column) {
                         document.getElementById(`${key}-value`).textContent = 'Brak danych';
                         document.getElementById(`${key}-mm`).textContent = 'Brak danych';
                         document.getElementById(`${key}-rr`).textContent = 'Brak danych';
                         document.getElementById(`${key}-date`).textContent = 'Brak danych';
-                        document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
+                        document.getElementById(`${key}-text`).textContent = '';
                         continue;
                     }
-
                     const data = column.data;
                     const latest = data[data.length - 1];
                     const latestValue = latest.value / 1000;
                     const latestDateObj = new Date(latest.date);
                     const latestMonth = latestDateObj.getMonth();
                     const latestYear = latestDateObj.getFullYear();
-
                     const prevMonth = latestMonth === 0 ? 11 : latestMonth - 1;
                     const prevYear = latestMonth === 0 ? latestYear - 1 : latestYear;
                     const prevMonthYearMonth = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
                     const prevMonthEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthYearMonth);
                     const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
-
                     const prevYearDate = new Date(latestDateObj);
                     prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
                     const prevYearYearMonth = prevYearDate.toISOString().slice(0, 7);
                     const prevYearEntry = data.find(entry => entry.date.slice(0, 7) === prevYearYearMonth);
                     const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
-
                     let mmChange = null, mmPercent = null, rrChange = null, rrPercent = null;
                     if (prevMonthValue !== null) {
                         mmChange = latestValue - prevMonthValue;
@@ -546,7 +434,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         rrChange = latestValue - prevYearValue;
                         rrPercent = (rrChange / prevYearValue) * 100;
                     }
-
                     document.getElementById(`${key}-value`).textContent = `${latestValue.toFixed(2)} mld PLN`;
                     document.getElementById(`${key}-mm`).textContent = prevMonthValue !== null
                         ? `${mmChange >= 0 ? '+' : ''}${mmChange.toFixed(2)} mld m/m (${mmPercent.toFixed(2)}%)`
@@ -557,593 +444,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
                         : 'Brak danych r/r';
                     document.getElementById(`${key}-rr`).className = `change ${rrChange >= 0 ? 'positive' : 'negative'}`;
                     document.getElementById(`${key}-date`).textContent = `Stan na ${latest.date}, źródło: NBP`;
-                    document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
+                    document.getElementById(`${key}-text`).textContent = '';
                 }
-
-                // Przetwarzanie danych dla wykresów
-                const dates = columns.m3 ? columns.m3.data.map(d => {
-                    const [year, month, day] = d.date.split("-").map(Number);
-                    return Date.UTC(year, month - 1, day);
-                }) : [];
-                const valuesData = {
-                    m3: columns.m3 ? columns.m3.data.map(d => d.value / 1000) : [],
-                    m2: columns.m2 ? columns.m2.data.map(d => d.value / 1000) : [],
-                    m1: columns.m1 ? columns.m1.data.map(d => d.value / 1000) : []
-                };
-
-                // Oblicz zmiany dla wykresu zmian
-                const calculateChanges = (period, unit) => {
-                    const changes = { m3: [], m2: [], m1: [] };
-                    for (const key of ['m3', 'm2', 'm1']) {
-                        if (!columns[key]) {
-                            changes[key] = new Array(dates.length).fill(null);
-                            continue;
-                        }
-                        const data = columns[key].data;
-                        for (let i = 0; i < data.length; i++) {
-                            const [year, month, day] = data[i].date.split("-").map(Number);
-                            const currentDate = new Date(Date.UTC(year, month - 1, day));
-                            const currentValue = data[i].value / 1000;
-                            let prevValue = null;
-                            if (period === 'rr') {
-                                const prevYearDate = new Date(currentDate);
-                                prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
-                                const prevYearMonth = `${prevYearDate.getUTCFullYear()}-${String(prevYearDate.getUTCMonth() + 1).padStart(2, '0')}`;
-                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevYearMonth);
-                                prevValue = prevEntry ? prevEntry.value / 1000 : null;
-                            } else {
-                                const currentMonth = currentDate.getUTCMonth();
-                                const currentYear = currentDate.getUTCFullYear();
-                                const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-                                const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-                                const prevMonthMonth = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
-                                const prevEntry = data.find(entry => entry.date.slice(0, 7) === prevMonthMonth);
-                                prevValue = prevEntry ? prevEntry.value / 1000 : null;
-                            }
-                            if (prevValue !== null) {
-                                const change = currentValue - prevValue;
-                                changes[key][i] = unit === 'percent' ? (change / prevValue * 100) : change;
-                            } else {
-                                changes[key][i] = null;
-                            }
-                        }
-                    }
-                    return changes;
-                };
-
-                // Wykres wartości
-                const valuesChartOptions = {
-                    chart: {
-                        id: 'valueChart',
-                        type: 'area',
-                        height: 400,
-                        fontFamily: 'Poppins, sans-serif',
-                        zoom: {
-                            enabled: false
-                        },
-                        toolbar: {
-                            show: true,
-                            tools: {
-                                download: false,
-                                selection: false,
-                                zoom: false,
-                                zoomin: false,
-                                zoomout: false,
-                                pan: false,
-                                reset: true
-                            }
-                        }
-                    },
-                    series: [
-                        { name: 'M3', data: valuesData.m3, color: '#9f7aea' },
-                        { name: 'M2', data: valuesData.m2, color: '#4299e1' },
-                        { name: 'M1', data: valuesData.m1, color: '#48bb78' }
-                    ],
-                    xaxis: {
-                        type: 'datetime',
-                        categories: dates,
-                        labels: { format: 'yyyy-MM' }
-                    },
-                    yaxis: {
-                        title: { text: 'Wartość (mld PLN)' },
-                        labels: { formatter: val => val.toFixed(2) },
-                        forceNiceScale: true
-                    },
-                    stroke: {
-                        curve: 'smooth',
-                        width: 2
-                    },
-                    fill: {
-                        opacity: 0.3,
-                        type: 'gradient',
-                        gradient: {
-                            shadeIntensity: 1,
-                            opacityFrom: 0.7,
-                            opacityTo: 0.2
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    markers: {
-                        size: 0,
-                        hover: {
-                            size: 5
-                        }
-                    },
-                    tooltip: {
-                        x: { format: 'yyyy-MM-dd' },
-                        y: { formatter: val => val ? `${val.toFixed(2)} mld PLN` : 'Brak danych' },
-                        shared: true,
-                        intersect: false
-                    },
-                    legend: {
-                        position: 'top',
-                        horizontalAlign: 'center'
-                    }
-                };
-
-                const valuesBrushOptions = {
-                    chart: {
-                        id: 'brushChartValues',
-                        height: 130,
-                        type: 'area',
-                        brush: {
-                            enabled: true,
-                            target: 'valueChart'
-                        },
-                        selection: {
-                            enabled: true,
-                            xaxis: {
-                                min: dates.length > 120 ? dates[dates.length - 120] : dates[0],
-                                max: dates[dates.length - 1]
-                            }
-                        }
-                    },
-                    colors: ['#9f7aea', '#4299e1', '#48bb78'],
-                    series: [
-                        { name: 'M3', data: valuesData.m3 },
-                        { name: 'M2', data: valuesData.m2 },
-                        { name: 'M1', data: valuesData.m1 }
-                    ],
-                    xaxis: {
-                        type: 'datetime',
-                        categories: dates,
-                        labels: { format: 'yyyy-MM' },
-                        tooltip: {
-                            enabled: false
-                        }
-                    },
-                    yaxis: {
-                        tickAmount: 2,
-                        labels: {
-                            show: false
-                        }
-                    },
-                    legend: {
-                        show: false
-                    },
-                    fill: {
-                        opacity: 0.1
-                    },
-                    stroke: {
-                        width: 1
-                    }
-                };
-
-                let valuesChart = new ApexCharts(document.querySelector('#values-chart'), valuesChartOptions);
-                valuesChart.render();
-
-                // Warunkowa inicjalizacja wykresów brush
-                let valuesBrushChart, changesBrushChart;
-                let changesChart = new ApexCharts(document.querySelector('#changes-chart'), {
-                    chart: {
-                        id: 'changesChart',
-                        type: 'area',
-                        height: 400,
-                        fontFamily: 'Poppins, sans-serif',
-                        zoom: {
-                            enabled: false
-                        },
-                        toolbar: {
-                            show: true,
-                            tools: {
-                                download: false,
-                                selection: false,
-                                zoom: false,
-                                zoomin: false,
-                                zoomout: false,
-                                pan: false,
-                                reset: true
-                            }
-                        }
-                    },
-                    series: [],
-                    xaxis: {
-                        type: 'datetime',
-                        categories: dates,
-                        labels: { format: 'yyyy-MM' }
-                    },
-                    stroke: { curve: 'smooth', width: 2 },
-                    fill: {
-                        opacity: 0.2,
-                        type: 'gradient',
-                        gradient: {
-                            shadeIntensity: 1,
-                            opacityFrom: 0.5,
-                            opacityTo: 0.1
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    markers: {
-                        size: 0,
-                        hover: {
-                            size: 5
-                        }
-                    },
-                    tooltip: {
-                        x: { format: 'yyyy-MM-dd' },
-                        y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' },
-                        shared: true,
-                        intersect: false
-                    },
-                    legend: { position: 'top' }
-                });
-                changesChart.render();
-
-                let currentPeriod = 'rr';
-                let currentUnit = 'mld';
-
-                // Definicja updateChangesChart przed użyciem
-                const updateChangesChart = () => {
-                    if (!changesChart) return;
-                    
-                    const changes = calculateChanges(currentPeriod, currentUnit);
-                    changesChart.updateSeries([
-                        { name: 'M3', data: changes.m3, color: '#9f7aea' },
-                        { name: 'M2', data: changes.m2, color: '#4299e1' },
-                        { name: 'M1', data: changes.m1, color: '#48bb78' }
-                    ]);
-                    changesChart.updateOptions({
-                        yaxis: {
-                            title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
-                            labels: { formatter: val => val ? val.toFixed(2) : '' },
-                            forceNiceScale: true
-                        },
-                        tooltip: {
-                            x: { format: 'yyyy-MM-dd' },
-                            y: { formatter: val => val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych' },
-                            shared: true,
-                            intersect: false
-                        }
-                    });
-                    if (changesBrushChart) {
-                        changesBrushChart.updateSeries([
-                            { name: 'M3', data: changes.m3, color: '#9f7aea' },
-                            { name: 'M2', data: changes.m2, color: '#4299e1' },
-                            { name: 'M1', data: changes.m1, color: '#48bb78' }
-                        ]);
-                    }
-                };
-
-                if (!isMobileDevice()) {
-                    valuesBrushChart = new ApexCharts(document.querySelector('#brush-chart-values'), valuesBrushOptions);
-                    valuesBrushChart.render();
-                    
-                    changesBrushChart = new ApexCharts(document.querySelector('#brush-chart-changes'), {
-                        chart: {
-                            id: 'brushChartChanges',
-                            height: 130,
-                            type: 'area',
-                            brush: {
-                                enabled: true,
-                                target: 'changesChart'
-                            },
-                            selection: {
-                                enabled: true,
-                                xaxis: {
-                                    min: dates.length > 120 ? dates[dates.length - 120] : dates[0],
-                                    max: dates[dates.length - 1]
-                                }
-                            }
-                        },
-                        colors: ['#9f7aea', '#4299e1', '#48bb78'],
-                        series: [],
-                        xaxis: {
-                            type: 'datetime',
-                            categories: dates,
-                            labels: { format: 'yyyy-MM' },
-                            tooltip: {
-                                enabled: false
-                            }
-                        },
-                        yaxis: {
-                            tickAmount: 2,
-                            labels: {
-                                show: false
-                            }
-                        },
-                        legend: {
-                            show: false
-                        },
-                        fill: {
-                            opacity: 0.1
-                        },
-                        stroke: {
-                            width: 1
-                        }
-                    });
-                    changesBrushChart.render();
-                    updateChangesChart();
-                } else {
-                    console.log("Wykryto urządzenie mobilne - tworzenie nowych wykresów z konfiguracją zoomable timeseries");
-                    
-                    // Ukryj elementy brush chart
-                    document.getElementById('brush-chart-values').style.display = 'none';
-                    document.getElementById('brush-chart-changes').style.display = 'none';
-                    
-                    // Zniszcz istniejące wykresy
-                    valuesChart.destroy();
-                    changesChart.destroy();
-                    
-                    // Konfiguracja dla wykresu wartości
-                    const mobileValuesOptions = {
-                        series: [
-                            { name: 'M3', data: valuesData.m3, color: '#9f7aea' },
-                            { name: 'M2', data: valuesData.m2, color: '#4299e1' },
-                            { name: 'M1', data: valuesData.m1, color: '#48bb78' }
-                        ],
-                        chart: {
-                            type: 'area',
-                            stacked: false,
-                            height: 400,
-                            fontFamily: 'Poppins, sans-serif',
-                            zoom: {
-                                type: 'x',
-                                enabled: true,
-                                autoScaleYaxis: true,
-                                zoomedArea: {
-                                    fill: { color: '#90CAF9', opacity: 0.4 },
-                                    stroke: { color: '#0D47A1', opacity: 0.4, width: 1 }
-                                }
-                            },
-                            toolbar: {
-                                autoSelected: 'zoom',
-                                tools: {
-                                    download: false,
-                                    selection: true,
-                                    zoom: true,
-                                    zoomin: false,
-                                    zoomout: false,
-                                    pan: true,
-                                    reset: true
-                                }
-                            },
-                            events: {
-                                beforeResetZoom: function(chartContext, opts) {
-                                    console.log('Przycisk reset - pokazywanie pełnej historii');
-                                    setTimeout(() => {
-                                        valuesChart.updateOptions({
-                                            xaxis: {
-                                                min: dates[0],
-                                                max: dates[dates.length - 1]
-                                            }
-                                        });
-                                        changesChart.updateOptions({
-                                            xaxis: {
-                                                min: dates[0],
-                                                max: dates[dates.length - 1]
-                                            }
-                                        });
-                                    }, 10);
-                                    return false;
-                                }
-                            }
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        markers: {
-                            size: 0,
-                            hover: {
-                                size: 5
-                            }
-                        },
-                        stroke: {
-                            curve: 'smooth',
-                            width: 2
-                        },
-                        fill: {
-                            type: 'gradient',
-                            gradient: {
-                                shadeIntensity: 1,
-                                opacityFrom: 0.7,
-                                opacityTo: 0.2,
-                                stops: [0, 90, 100]
-                            }
-                        },
-                        xaxis: {
-                            type: 'datetime',
-                            categories: dates,
-                            labels: { format: 'yyyy-MM' }
-                        },
-                        yaxis: {
-                            title: { text: 'Wartość (mld PLN)' },
-                            labels: { formatter: val => val.toFixed(2) },
-                            forceNiceScale: true
-                        },
-                        tooltip: {
-                            shared: true,
-                            intersect: false,
-                            x: { format: 'yyyy-MM-dd' },
-                            y: {
-                                formatter: function (val) {
-                                    return val ? val.toFixed(2) + " mld PLN" : "Brak danych";
-                                }
-                            }
-                        },
-                        legend: {
-                            position: 'top',
-                            horizontalAlign: 'center'
-                        }
-                    };
-                    
-                    // Utworzenie nowego wykresu wartości
-                    valuesChart = new ApexCharts(document.querySelector('#values-chart'), mobileValuesOptions);
-                    valuesChart.render();
-                    
-                    // Konfiguracja dla wykresu zmian
-                    const mobileChangesOptions = {
-                        series: [],
-                        chart: {
-                            type: 'area',
-                            stacked: false,
-                            height: 400,
-                            fontFamily: 'Poppins, sans-serif',
-                            zoom: {
-                                type: 'x',
-                                enabled: true,
-                                autoScaleYaxis: true,
-                                zoomedArea: {
-                                    fill: { color: '#90CAF9', opacity: 0.4 },
-                                    stroke: { color: '#0D47A1', opacity: 0.4, width: 1 }
-                                }
-                            },
-                            toolbar: {
-                                autoSelected: 'zoom',
-                                tools: {
-                                    download: false,
-                                    selection: true,
-                                    zoom: true,
-                                    zoomin: false,
-                                    zoomout: false,
-                                    pan: true,
-                                    reset: true
-                                }
-                            },
-                            events: {
-                                beforeResetZoom: function(chartContext, opts) {
-                                    return false; // Wykres wartości już obsłuży resetowanie obu wykresów
-                                }
-                            }
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        markers: {
-                            size: 0,
-                            hover: {
-                                size: 5
-                            }
-                        },
-                        stroke: {
-                            curve: 'smooth',
-                            width: 2
-                        },
-                        fill: {
-                            type: 'gradient',
-                            gradient: {
-                                shadeIntensity: 1,
-                                opacityFrom: 0.5,
-                                opacityTo: 0.1,
-                                stops: [0, 90, 100]
-                            }
-                        },
-                        xaxis: {
-                            type: 'datetime',
-                            categories: dates,
-                            labels: { format: 'yyyy-MM' }
-                        },
-                        yaxis: {
-                            title: { text: currentUnit === 'percent' ? 'Zmiana (%)' : 'Zmiana (mld PLN)' },
-                            labels: { formatter: val => val ? val.toFixed(2) : '' },
-                            forceNiceScale: true
-                        },
-                        tooltip: {
-                            shared: true,
-                            intersect: false,
-                            x: { format: 'yyyy-MM-dd' },
-                            y: {
-                                formatter: function (val) {
-                                    return val ? `${val.toFixed(2)} ${currentUnit === 'percent' ? '%' : 'mld PLN'}` : 'Brak danych';
-                                }
-                            }
-                        },
-                        legend: {
-                            position: 'top',
-                            horizontalAlign: 'center'
-                        }
-                    };
-                    
-                    // Utworzenie nowego wykresu zmian
-                    changesChart = new ApexCharts(document.querySelector('#changes-chart'), mobileChangesOptions);
-                    changesChart.render();
-                    
-                    // Dodanie początkowych danych do wykresu zmian
-                    updateChangesChart();
-                    
-                    // Ustaw domyślny zakres 5 lat
-                    const defaultMonths = Math.min(60, dates.length - 1);
-                    if (defaultMonths > 0) {
-                        const minDate = dates[dates.length - defaultMonths - 1];
-                        const maxDate = dates[dates.length - 1];
-                        valuesChart.updateOptions({ xaxis: { min: minDate, max: maxDate } });
-                        changesChart.updateOptions({ xaxis: { min: minDate, max: maxDate } });
-                    }
-                    
-                    // Nasłuchiwanie kliknięcia przycisku reset
-                    setTimeout(() => {
-                        const resetButtons = document.querySelectorAll('.apexcharts-reset-icon');
-                        resetButtons.forEach(button => {
-                            button.addEventListener('click', function(e) {
-                                console.log('Przycisk reset kliknięty ręcznie');
-                                setTimeout(() => {
-                                    valuesChart.updateOptions({
-                                        xaxis: {
-                                            min: dates[0],
-                                            max: dates[dates.length - 1]
-                                        }
-                                    });
-                                    changesChart.updateOptions({
-                                        xaxis: {
-                                            min: dates[0],
-                                            max: dates[dates.length - 1]
-                                        }
-                                    });
-                                }, 50);
-                            });
-                        });
-                    }, 500);
-                }
-
-                document.getElementById('period-toggle').addEventListener('change', (e) => {
-                    currentPeriod = e.target.checked ? 'rr' : 'mm';
-                    updateChangesChart();
-                });
-
-                document.getElementById('unit-toggle').addEventListener('change', (e) => {
-                    currentUnit = e.target.checked ? 'mld' : 'percent';
-                    updateChangesChart();
-                });
-
-                // Debugowanie zdarzeń zooma i zaznaczania
-                valuesChart.addEventListener('zoomed', function(chartContext, { xaxis, yaxis }) {
-                    console.log('Zdarzenie zoom wywołane', xaxis, yaxis);
-                });
-
-                valuesChart.addEventListener('selection', function(chartContext, { xaxis, yaxis }) {
-                    console.log('Zdarzenie selection wywołane', xaxis, yaxis);
-                });
+                // Dalsza obsługa wykresów...
             } catch (error) {
-                console.error('Błąd:', error);
                 for (const key of ['m3', 'm2', 'm1']) {
                     document.getElementById(`${key}-value`).textContent = 'Błąd ładowania';
                     document.getElementById(`${key}-mm`).textContent = 'Błąd';
                     document.getElementById(`${key}-rr`).textContent = 'Błąd';
                     document.getElementById(`${key}-date`).textContent = 'Błąd';
-                    document.getElementById(`${key}-text`).textContent = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
+                    document.getElementById(`${key}-text`).textContent = '';
                 }
                 document.querySelector('#values-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
                 document.querySelector('#changes-chart').innerHTML = '<p>Błąd ładowania wykresu</p>';
@@ -1152,448 +462,93 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor i
             }
         }
 
-        // Struktura danych dla tabeli z przypisanymi column_id
-        const moneySupplyStructure = [
-            {
-                name: "Pieniądz M3",
-                level: 0,
-                expanded: true,
-                isExpandable: false,
-                columnId: 23,
-                children: []
-            },
-            {
-                name: "Pieniądz M2",
-                level: 1,
-                expanded: false,
-                isExpandable: true,
-                columnId: 19,
-                children: [
-                    {
-                        name: "Depozyty i inne zobowiązania do 2 lat włącznie",
-                        level: 2,
-                        expanded: false,
-                        isExpandable: true,
-                        columnId: 12,
-                        children: [
-                            {
-                                name: "Gospodarstwa domowe (do 2 lat)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 13,
-                                children: []
-                            },
-                            {
-                                name: "Pozostałe instytucje finansowe (do 2 lat)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 14,
-                                children: []
-                            },
-                            {
-                                name: "Przedsiębiorstwa niefinansowe (do 2 lat)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 15,
-                                children: []
-                            },
-                            {
-                                name: "Instytucje niekomercyjne działające na rzecz gospodarstw domowych (do 2 lat)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 16,
-                                children: []
-                            },
-                            {
-                                name: "Instytucje samorządowe (do 2 lat)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 17,
-                                children: []
-                            },
-                            {
-                                name: "Fundusze zabezpieczenia społecznego (do 2 lat)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 18,
-                                children: []
-                            }
-                        ]
-                    },
-                    {
-                        name: "Pieniądz M1",
-                        level: 2,
-                        expanded: false,
-                        isExpandable: true,
-                        columnId: 11,
-                        children: [
-                            {
-                                name: "Depozyty i inne zobowiązania bieżące",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: true,
-                                columnId: 4,
-                                children: [
-                                    {
-                                        name: "Gospodarstwa domowe (bieżące)",
-                                        level: 4,
-                                        expanded: false,
-                                        isExpandable: false,
-                                        columnId: 5,
-                                        children: []
-                                    },
-                                    {
-                                        name: "Pozostałe instytucje finansowe (bieżące)",
-                                        level: 4,
-                                        expanded: false,
-                                        isExpandable: false,
-                                        columnId: 6,
-                                        children: []
-                                    },
-                                    {
-                                        name: "Przedsiębiorstwa niefinansowe (bieżące)",
-                                        level: 4,
-                                        expanded: false,
-                                        isExpandable: false,
-                                        columnId: 7,
-                                        children: []
-                                    },
-                                    {
-                                        name: "Instytucje niekomercyjne działające na rzecz gospodarstw domowych (bieżące)",
-                                        level: 4,
-                                        expanded: false,
-                                        isExpandable: false,
-                                        columnId: 8,
-                                        children: []
-                                    },
-                                    {
-                                        name: "Instytucje samorządowe (bieżące)",
-                                        level: 4,
-                                        expanded: false,
-                                        isExpandable: false,
-                                        columnId: 9,
-                                        children: []
-                                    },
-                                    {
-                                        name: "Fundusze zabezpieczenia społecznego (bieżące)",
-                                        level: 4,
-                                        expanded: false,
-                                        isExpandable: false,
-                                        columnId: 10,
-                                        children: []
-                                    }
-                                ]
-                            },
-                            {
-                                name: "PIENIĄDZ GOTÓWKOWY W OBIEGU (POZA KASAMI MIF)",
-                                level: 3,
-                                expanded: false,
-                                isExpandable: false,
-                                columnId: 1,
-                                children: []
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                name: "Operacje z przyrzeczeniem odkupu",
-                level: 1,
-                expanded: false,
-                isExpandable: false,
-                columnId: 20,
-                children: []
-            },
-            {
-                name: "Emisja dłużnych papierów wartościowych z terminem pierwotnym do 2 lat (włącznie)",
-                level: 1,
-                expanded: false,
-                isExpandable: false,
-                columnId: 21,
-                children: []
-            },
-            {
-                name: "Emisja udziałów / jednostek uczestnictwa w funduszach rynku pieniężnego",
-                level: 1,
-                expanded: false,
-                isExpandable: false,
-                columnId: 22,
-                children: []
-            }
+        // --- Drzewkowa struktura tabeli ---
+        const treeStructure = [
+            { name: "Pieniądz M3", level: 0, columnId: 23 },
+            { name: "Dodatkowe komponenty M3", level: 1 },
+            { name: "Operacje z przyrzeczeniem odkupu", level: 2, columnId: 20 },
+            { name: "Emisja dłużnych papierów wartościowych z terminem pierwotnym do 2 lat (włącznie)", level: 2, columnId: 21 },
+            { name: "Emisja udziałów / jednostek uczestnictwa w funduszach rynku pieniężnego", level: 2, columnId: 22 },
+            { name: "Pieniądz M2", level: 1, columnId: 19 },
+            { name: "Depozyty do 2 lat", level: 2, columnId: 12 },
+            { name: "Gospodarstwa domowe (do 2 lat)", level: 3, columnId: 13 },
+            { name: "Pozostałe instytucje finansowe (do 2 lat)", level: 3, columnId: 14 },
+            { name: "Przedsiębiorstwa niefinansowe (do 2 lat)", level: 3, columnId: 15 },
+            { name: "Instytucje niekomercyjne działające na rzecz gospodarstw domowych (do 2 lat)", level: 3, columnId: 16 },
+            { name: "Instytucje samorządowe (do 2 lat)", level: 3, columnId: 17 },
+            { name: "Fundusze zabezpieczenia społecznego (do 2 lat)", level: 3, columnId: 18 },
+            { name: "Pieniądz M1", level: 2, columnId: 11 },
+            { name: "Depozyty bieżące", level: 3, columnId: 4 },
+            { name: "Gospodarstwa domowe (bieżące)", level: 4, columnId: 5 },
+            { name: "Pozostałe instytucje finansowe (bieżące)", level: 4, columnId: 6 },
+            { name: "Przedsiębiorstwa niefinansowe (bieżące)", level: 4, columnId: 7 },
+            { name: "Instytucje niekomercyjne działające na rzecz gospodarstw domowych (bieżące)", level: 4, columnId: 8 },
+            { name: "Instytucje samorządowe (bieżące)", level: 4, columnId: 9 },
+            { name: "Fundusze zabezpieczenia społecznego (bieżące)", level: 4, columnId: 10 },
+            { name: "PIENIĄDZ GOTÓWKOWY W OBIEGU (POZA KASAMI MIF)", level: 3, columnId: 1 }
         ];
 
-        // Funkcja pobierania i przetwarzania danych dla tabeli
-        async function fetchAndProcessTableData() {
+        async function renderTreeTable() {
             try {
                 const response = await fetch('am_data.json');
-                if (!response.ok) {
-                    throw new Error(`Problem z pobieraniem danych: ${response.status} ${response.statusText}`);
+                const data = await response.json();
+                const columns = data.columns;
+                function getLatestValue(col) {
+                    if (!col || !col.data || !col.data.length) return null;
+                    return col.data[col.data.length - 1];
                 }
-                const jsonData = await response.json();
-                
-                if (!jsonData.columns || !Array.isArray(jsonData.columns)) {
-                    throw new Error('Nieprawidłowa struktura danych JSON: brak tablicy columns');
+                function getValueForMonth(col, dateString) {
+                    if (!col || !col.data || !col.data.length) return null;
+                    return col.data.find(x => x.date.startsWith(dateString));
                 }
-
-                // Mapowanie danych z JSON do naszej struktury
-                processMoneySupplyData(jsonData, moneySupplyStructure);
-                
-                // Wypełnij tabelę danymi
-                populateTable();
-            } catch (error) {
-                console.error('Błąd podczas przetwarzania danych tabeli:', error);
-                document.querySelector('#money-supply-table tbody').innerHTML = 
-                    `<tr><td colspan="7">Błąd podczas wczytywania danych: ${error.message}</td></tr>`;
+                let latestMonth = null;
+                for (const col of columns) {
+                    if (col.data && col.data.length) {
+                        const last = col.data[col.data.length - 1];
+                        if (!latestMonth || last.date > latestMonth) latestMonth = last.date;
+                    }
+                }
+                if (!latestMonth) return;
+                const [latestYear, latestM, ] = latestMonth.split("-");
+                const prevYearDate = (parseInt(latestYear)-1) + '-' + latestM;
+                let prevMonthYear = parseInt(latestM) === 1 ? parseInt(latestYear)-1 : latestYear;
+                let prevMonthMonth = parseInt(latestM) === 1 ? 12 : String(parseInt(latestM)-1).padStart(2, "0");
+                const prevMonthDate = prevMonthYear + "-" + prevMonthMonth;
+                let rows = "";
+                for (const item of treeStructure) {
+                    let col = item.columnId ? columns.find(x => x.column_id === item.columnId) : null;
+                    let latest = getLatestValue(col);
+                    let value = latest ? (latest.value/1000) : null;
+                    let prevYear = col ? getValueForMonth(col, prevYearDate) : null;
+                    let prevYearValue = prevYear ? (prevYear.value/1000) : null;
+                    let prevMonth = col ? getValueForMonth(col, prevMonthDate) : null;
+                    let prevMonthValue = prevMonth ? (prevMonth.value/1000) : null;
+                    let rrAbs = (value!==null && prevYearValue!==null) ? (value - prevYearValue) : null;
+                    let mmAbs = (value!==null && prevMonthValue!==null) ? (value - prevMonthValue) : null;
+                    let rrPct = (rrAbs!==null && prevYearValue) ? (rrAbs / prevYearValue * 100) : null;
+                    let mmPct = (mmAbs!==null && prevMonthValue) ? (mmAbs / prevMonthValue * 100) : null;
+                    const num = (n, d=2) => n===null ? "brak danych" : n.toLocaleString("pl-PL", {minimumFractionDigits: d, maximumFractionDigits: d});
+                    const colored = (n, d=2) => n===null ? "brak danych" : `<span class="${n>=0?'positive-value':'negative-value'}">${n>=0?'+':''}${num(n, d)}</span>`;
+                    rows += `<tr>
+                        <td class="tree-indent-${item.level}">${item.name}</td>
+                        <td>${num(value,2)}</td>
+                        <td>${colored(rrAbs,2)}</td>
+                        <td>${colored(mmAbs,2)}</td>
+                        <td>${colored(rrPct,2)}%</td>
+                        <td>${colored(mmPct,2)}%</td>
+                    </tr>`;
+                }
+                document.getElementById('tree-table-body').innerHTML = rows;
+            } catch (err) {
+                document.getElementById('tree-table-body').innerHTML = '<tr><td colspan="6">Błąd ładowania danych</td></tr>';
+                console.error(err);
             }
         }
 
-        // Funkcja przetwarzająca dane tabeli
-        function processMoneySupplyData(jsonData, structure) {
-            // Znajdź dane dla M3 do obliczenia udziału procentowego
-            const m3Data = jsonData.columns.find(col => col.column_id === 23);
-            const m3Value = m3Data && m3Data.data.length > 0 ? m3Data.data[m3Data.data.length - 1].value / 1000 : 0;
-            
-            // Funkcja rekurencyjnie przetwarzająca strukturę
-            function processNode(node) {
-                const columnData = jsonData.columns.find(col => col.column_id === node.columnId);
-                
-                if (columnData && columnData.data && columnData.data.length > 0) {
-                    const data = columnData.data;
-                    const latest = data[data.length - 1];
-                    const latestValue = latest.value / 1000; // Konwersja na mld PLN
-                    const latestDateObj = new Date(latest.date);
-                    
-                    // Oblicz zmianę miesiąc do miesiąca
-                    const prevMonthDate = new Date(latestDateObj);
-                    prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-                    const prevMonthYearMonth = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
-                    const prevMonthEntry = data.find(entry => entry.date.startsWith(prevMonthYearMonth));
-                    const prevMonthValue = prevMonthEntry ? prevMonthEntry.value / 1000 : null;
-                    
-                    let mmChange = null, mmPercent = null;
-                    if (prevMonthValue !== null) {
-                        mmChange = latestValue - prevMonthValue;
-                        mmPercent = (mmChange / prevMonthValue) * 100;
-                    }
-                    
-                    // Oblicz zmianę rok do roku
-                    const prevYearDate = new Date(latestDateObj);
-                    prevYearDate.setFullYear(prevYearDate.getFullYear() - 1);
-                    const prevYearYearMonth = `${prevYearDate.getFullYear()}-${String(prevYearDate.getMonth() + 1).padStart(2, '0')}`;
-                    const prevYearEntry = data.find(entry => entry.date.startsWith(prevYearYearMonth));
-                    const prevYearValue = prevYearEntry ? prevYearEntry.value / 1000 : null;
-                    
-                    let rrChange = null, rrPercent = null;
-                    if (prevYearValue !== null) {
-                        rrChange = latestValue - prevYearValue;
-                        rrPercent = (rrChange / prevYearValue) * 100;
-                    }
-                    
-                    // Oblicz udział procentowy
-                    const share = (latestValue / m3Value) * 100;
-                    
-                    // Przypisz wartości do węzła
-                    node.value = latestValue;
-                    node.share = share;
-                    node.monthlyChangePLN = mmChange;
-                    node.monthlyChangePercent = mmPercent;
-                    node.yearlyChangePLN = rrChange;
-                    node.yearlyChangePercent = rrPercent;
-                    node.latestDate = latest.date;
-                } else {
-                    // Jeśli nie znaleziono danych, ustaw wartości na null
-                    console.warn(`Nie znaleziono danych dla column_id: ${node.columnId}`);
-                    node.value = null;
-                    node.share = null;
-                    node.monthlyChangePLN = null;
-                    node.monthlyChangePercent = null;
-                    node.yearlyChangePLN = null;
-                    node.yearlyChangePercent = null;
-                    node.latestDate = null;
-                }
-                
-                // Przetwórz rekurencyjnie dzieci
-                if (node.children && node.children.length > 0) {
-                    for (const child of node.children) {
-                        processNode(child);
-                    }
-                }
-            }
-            
-            // Przetwórz całą strukturę
-            for (const node of structure) {
-                processNode(node);
-            }
-        }
-
-        // Funkcja do formatowania wartości numerycznych
-        function formatNumber(num, decimals = 2) {
-            if (num === null || isNaN(num)) return 'Brak danych';
-            return num.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        }
-        
-        // Funkcja do formatowania zmian z odpowiednim kolorem i znakiem
-        function formatChange(value, isPercentage = false) {
-            if (value === null || isNaN(value)) return 'Brak danych';
-            
-            const formattedValue = formatNumber(value, isPercentage ? 2 : 2);
-            const cssClass = value >= 0 ? 'positive-value' : 'negative-value';
-            const sign = value >= 0 ? '+' : '';
-            const suffix = isPercentage ? '%' : ' mld PLN';
-            return `<span class="${cssClass}">${sign}${formattedValue}${suffix}</span>`;
-        }
-        
-        // Funkcja generująca HTML dla wiersza tabeli
-        function generateRowHtml(item, isHidden = false) {
-            const indentClass = item.level === 1 ? 'indented' : 
-                               item.level === 2 ? 'double-indented' : 
-                               item.level === 3 ? 'triple-indented' : 
-                               item.level === 4 ? 'quad-indented' : '';
-            
-            let toggleBtn = '';
-            if (item.isExpandable) {
-                toggleBtn = `<button class="toggle-btn" data-expanded="${item.expanded}">${item.expanded ? '−' : '+'}</button>`;
-            }
-            
-            return `
-                <tr class="level-${item.level} ${isHidden ? 'hidden-row' : ''}" data-level="${item.level}" data-name="${item.name}">
-                    <td class="${indentClass}">${toggleBtn}${item.name}</td>
-                    <td>${item.value !== null ? formatNumber(item.value) + ' mld PLN' : 'Brak danych'}</td>
-                    <td>${item.share !== null ? formatNumber(item.share) + '%' : 'Brak danych'}</td>
-                    <td>${formatChange(item.monthlyChangePLN)}</td>
-                    <td>${formatChange(item.monthlyChangePercent, true)}</td>
-                    <td>${formatChange(item.yearlyChangePLN)}</td>
-                    <td>${formatChange(item.yearlyChangePercent, true)}</td>
-                </tr>
-            `;
-        }
-        
-        // Funkcja rekurencyjnie renderująca całą strukturę tabeli
-        function renderTable(container, items, parentExpanded = true) {
-            let html = '';
-            
-            for (const item of items) {
-                // Sprawdź, czy wiersz powinien być widoczny
-                const isHidden = !parentExpanded;
-                
-                // Dodaj wiersz
-                html += generateRowHtml(item, isHidden);
-                
-                // Dodaj dzieci rekurencyjnie
-                if (item.children && item.children.length > 0) {
-                    html += renderTable(container, item.children, parentExpanded && item.expanded);
-                }
-            }
-            
-            return html;
-        }
-        
-        // Wypełnij tabelę danymi
-        function populateTable() {
-            const tableBody = document.querySelector('#money-supply-table tbody');
-            tableBody.innerHTML = renderTable(tableBody, moneySupplyStructure);
-            
-            // Dodaj obsługę zdarzeń dla przycisków rozwijania/zwijania
-            const toggleButtons = document.querySelectorAll('.toggle-btn');
-            toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Znajdź wiersz zawierający przycisk
-                    const row = this.closest('tr');
-                    const itemName = row.getAttribute('data-name');
-                    const itemLevel = parseInt(row.getAttribute('data-level'));
-                    
-                    // Znajdź element w strukturze danych
-                    let targetItem;
-                    function findItem(items) {
-                        for (const item of items) {
-                            if (item.name === itemName && item.level === itemLevel) {
-                                return item;
-                            }
-                            if (item.children && item.children.length > 0) {
-                                const found = findItem(item.children);
-                                if (found) return found;
-                            }
-                        }
-                        return null;
-                    }
-                    
-                    targetItem = findItem(moneySupplyStructure);
-                    if (!targetItem) return;
-                    
-                    // Przełącz stan rozwinięcia
-                    targetItem.expanded = !targetItem.expanded;
-                    this.setAttribute('data-expanded', targetItem.expanded);
-                    this.textContent = targetItem.expanded ? '−' : '+';
-                    
-                    // Aktualizuj widoczność wierszy dzieci
-                    const table = document.querySelector('#money-supply-table');
-                    const allRows = Array.from(table.querySelectorAll('tbody tr'));
-                    const rowIndex = allRows.indexOf(row);
-                    
-                    let i = rowIndex + 1;
-                    while (i < allRows.length) {
-                        const currentRow = allRows[i];
-                        const currentLevel = parseInt(currentRow.getAttribute('data-level'));
-                        
-                        // Jeśli napotkamy wiersz o poziomie mniejszym lub równym aktualnemu,
-                        // to znaczy, że wyszliśmy poza zakres dzieci
-                        if (currentLevel <= itemLevel) break;
-                        
-                        // Pokaż/ukryj bezpośrednie dzieci
-                        if (currentLevel === itemLevel + 1) {
-                            if (targetItem.expanded) {
-                                currentRow.classList.remove('hidden-row');
-                            } else {
-                                currentRow.classList.add('hidden-row');
-                            }
-                        } 
-                        // Ukryj wszystkie głębsze dzieci jeśli zwijamy rodzica
-                        else if (!targetItem.expanded) {
-                            currentRow.classList.add('hidden-row');
-                        }
-                        // Pokaż głębsze dzieci tylko jeśli ich bezpośredni rodzic jest rozwinięty
-                        else {
-                            let parentRow = null;
-                            let parentLevel = currentLevel - 1;
-                            
-                            // Znajdź najbliższego rodzica tego wiersza
-                            for (let j = i - 1; j > rowIndex; j--) {
-                                if (parseInt(allRows[j].getAttribute('data-level')) === parentLevel) {
-                                    parentRow = allRows[j];
-                                    break;
-                                }
-                            }
-                            
-                            if (parentRow) {
-                                const parentButton = parentRow.querySelector('.toggle-btn');
-                                const parentExpanded = parentButton ? parentButton.getAttribute('data-expanded') === 'true' : false;
-                                
-                                if (parentExpanded) {
-                                    currentRow.classList.remove('hidden-row');
-                                } else {
-                                    currentRow.classList.add('hidden-row');
-                                }
-                            }
-                        }
-                        
-                        i++;
-                    }
-                });
-            });
-        }
-
-        // Inicjalizacja
+        // Inicjalizacja wszystkich sekcji po załadowaniu strony
         window.onload = function() {
             loadData();
-            fetchAndProcessTableData();
+            renderTreeTable();
         };
     </script>
 </body>
